@@ -1,0 +1,11 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "transcriptor": {
+      "description": "Editor literal",
+      "mode": "subagent",
+      "temperature": 0.1,
+      "prompt": "No resumas. Mantén literalidad. Solo puntúa."
+    }
+  }
+}
