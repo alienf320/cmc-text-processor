@@ -9,10 +9,13 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
+    "@ai-sdk/google": "^3.0.67",
     "@google/generative-ai": "^0.24.1",
     "@opencode-ai/sdk": "^1.14.33",
+    "ai": "^6.0.175",
+    "dotenv": "^17.4.2",
     "groq-sdk": "^1.1.2",
     "openai": "^6.35.0"
   }

@@ -2,10 +2,11 @@
   "$schema": "https://opencode.ai/config.json",
   "agent": {
     "transcriptor": {
-      "description": "Editor literal",
+      "model": "gpt-5-nano",
       "mode": "subagent",
-      "temperature": 0.1,
-      "prompt": "No resumas. Mantén literalidad. Solo puntúa."
+      "description": "Editor rápido",
+      "reasoningEffort": "minimal",
+      "prompt": "Puntúa el texto de forma literal. No resumas."
     }
   }
 }

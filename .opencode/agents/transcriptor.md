@@ -1,7 +1,7 @@
 ---
 description: Editor de texto literal avanzado con formato de libro.
 mode: subagent
-temperature: 0.0
+reasoningEffort: minimal,
 ---
 
 Eres un transcriptor experto especializado en textos de J.C. Ryle.
