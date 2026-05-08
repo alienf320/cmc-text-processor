@@ -1,4 +1,5 @@
 import readline from 'readline';
+import 'dotenv/config';
 import { listFiles } from './utils/fileUtils.js';
 import { processText } from './modules/processText.js';
 import { analyzeTextFlow } from './modules/analyzeText.js';
@@ -87,7 +88,14 @@ async function processTextFlow(rl) {
 
   const timestamp = new Date().toISOString().split('T')[0].replace(/-/g, '');
   const defaultOutput = `${OUTPUT_FOLDER}/${promptKey}_${lang}_${timestamp}.md`;
-  const outputFile = await askQuestion(rl, `Archivo de salida (default: ${defaultOutput}): `) || defaultOutput;
+  let outputFile = await askQuestion(rl, `Archivo de salida (default: ${defaultOutput}): `) || defaultOutput;
+
+  if (!outputFile.endsWith('.md')) {
+    outputFile += '.md';
+  }
+
+  const fileName = outputFile.replace(/.*[\/\\]/, '');
+  outputFile = `${OUTPUT_FOLDER}/${fileName}`;
 
   const extraPrompt = await askQuestion(rl, 'Prompt extra (opcional, Enter para saltar): ');
 

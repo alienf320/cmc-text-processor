@@ -70,8 +70,15 @@ export async function analyzeTextFlow(rl) {
   if (qaPairs.length > 0) {
     const timestamp = new Date().toISOString().split('T')[0].replace(/-/g, '');
     const baseName = inputFile.replace(`${OUTPUT_FOLDER}/`, '').replace('.md', '');
-    const outputFile = await askQuestion(rl, `Archivo de salida (default: ${OUTPUT_FOLDER}/qa_${baseName}_${timestamp}.md): `)
-      || `${OUTPUT_FOLDER}/qa_${baseName}_${timestamp}.md`;
+    const defaultOutput = `${OUTPUT_FOLDER}/qa_${baseName}_${timestamp}.md`;
+    let outputFile = await askQuestion(rl, `Archivo de salida (default: ${defaultOutput}): `) || defaultOutput;
+
+    if (!outputFile.endsWith('.md')) {
+      outputFile += '.md';
+    }
+
+    const fileName = outputFile.replace(/.*[\/\\]/, '');
+    outputFile = `${OUTPUT_FOLDER}/${fileName}`;
 
     const fecha = new Date().toISOString().split('T')[0];
     let content = `---

@@ -1,7 +1,8 @@
 import fs from 'fs/promises';
+import path from 'path';
 
-export async function ensureDir(path) {
-  await fs.mkdir(path, { recursive: true });
+export async function ensureDir(dirPath) {
+  await fs.mkdir(dirPath, { recursive: true });
 }
 
 export async function listFiles(directory, extensions = ['.txt', '.md']) {
@@ -19,7 +20,7 @@ export async function readFile(filePath) {
 }
 
 export async function writeFile(filePath, content) {
-  const dir = filePath.split('/').slice(0, -1).join('/');
+  const dir = path.dirname(filePath);
   if (dir) {
     await ensureDir(dir);
   }
