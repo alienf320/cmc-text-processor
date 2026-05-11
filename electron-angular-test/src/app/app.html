@@ -1,0 +1,95 @@
+<div class="app-layout">
+  
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">E</div>
+      <h2>Electron App</h2>
+    </div>
+    
+    <ul class="nav-links">
+      <li 
+        (click)="switchView('upload')" 
+        [class.active]="currentView === 'upload'">
+        <span class="icon">📤</span> Subir Archivos
+      </li>
+      <li 
+        (click)="switchView('results')" 
+        [class.active]="currentView === 'results'">
+        <span class="icon">📖</span> Ver Resultados
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Main Content Area -->
+  <main class="main-content">
+    
+    @if (currentView === 'upload') {
+      <div class="view-container slide-in">
+        <h1>Drag & Drop de Archivos Locales</h1>
+        <p class="subtitle">Arrastra cualquier archivo desde tu explorador para obtener su ruta local.</p>
+        
+        <div 
+          class="drop-zone" 
+          [class.dragging]="isDragging">
+          
+          <div class="message">
+            <h2>Arrastra un archivo aquí</h2>
+            <p>O suéltalo en cualquier parte de este recuadro</p>
+          </div>
+        </div>
+
+        @if (droppedFilePaths.length > 0) {
+          <div class="results">
+            <h3>Archivos Detectados (Rutas Locales):</h3>
+            <ul>
+              @for (path of droppedFilePaths; track path) {
+                <li>{{ path }}</li>
+              }
+            </ul>
+          </div>
+        }
+      </div>
+    }
+
+    @if (currentView === 'results') {
+      <div class="view-container slide-in">
+        <div class="header-action">
+          <div>
+            <h1>Carpeta de Resultados</h1>
+            <p class="subtitle">Explora los archivos Markdown de tu directorio local `resultados`.</p>
+          </div>
+          <button class="btn" (click)="loadResultsDir()">Cargar Resultados</button>
+        </div>
+
+        @if (resultsFiles.length > 0) {
+          <div class="file-browser">
+            <div class="file-list">
+              <h3>Archivos MD</h3>
+              <ul>
+                @for (file of resultsFiles; track file.name) {
+                  <li (click)="loadFileContent(file)" [class.active]="selectedFileName === file.name">
+                    📄 {{ file.name }}
+                  </li>
+                }
+              </ul>
+            </div>
+            <div class="file-preview">
+              <h3>Vista Previa: <span class="highlight">{{ selectedFileName || 'Ninguno' }}</span></h3>
+              @if (selectedFileContent) {
+                <pre class="markdown-preview">{{ selectedFileContent }}</pre>
+              } @else {
+                <div class="empty-preview">Selecciona un archivo para ver su contenido</div>
+              }
+            </div>
+          </div>
+        } @else {
+          <div class="empty-state">
+            <p>Haz clic en "Cargar Resultados" para leer la carpeta local.</p>
+          </div>
+        }
+      </div>
+    }
+
+  </main>
+</div>
