@@ -35,7 +35,8 @@ REGLAS:
 2. NO elimines ni quites palabras del texto original.
 3. Si el texto original está en otro idioma, tradúcelo completamente al Español.
 4. Añade títulos con '##' solo si el texto cambia claramente de capítulo o sección. No fuerces títulos innecesarios.
-5. Corrige errores de OCR, saltos de párrafo y errores ortográficos sin alterar el contenido.`,
+5. Corrige errores de OCR, saltos de párrafo y errores ortográficos sin alterar el contenido.
+6. Elimina todo lo que se encuentre al pie de página y en el encabezado como los números de página.`,
     en: `You are a literary text and book excerpt editor. The output language is English.
 
 RULES:

@@ -15,8 +15,8 @@ function askQuestion(rl, question) {
 
 async function mainMenu(rl) {
   console.log('=== yt-transcriber ===\n');
-  console.log('1. Procesar texto');
-  console.log('2. Analizar / Hacer preguntas sobre un texto\n');
+  console.log('1. Procesar texto / PDF');
+  console.log('2. Analizar / Hacer preguntas sobre un texto o PDF\n');
 
   const option = await askQuestion(rl, 'Selecciona una opción (1-2): ');
   return option;
