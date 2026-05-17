@@ -1,6 +1,7 @@
 import { PROMPTS, TIPO_LABELS, LANG_LABELS } from '../config/prompts.js';
 import { generateWithRetry, buildSystemPrompt } from '../services/ai.js';
 import { readFile, writeFile } from '../utils/fileUtils.js';
+import { uploadToDrive } from '../services/drive.js';
 
 const OUTPUT_FOLDER = 'Resultados';
 
@@ -47,6 +48,24 @@ function chunkText(text, maxLength = 20000) {
   return chunks;
 }
 
+function buildContinuationContext(previousText) {
+  // Tomar las últimas ~800 palabras del texto anterior como contexto de continuidad
+  const words = previousText.trim().split(/\s+/);
+  const tail = words.slice(-800).join(' ');
+  return `
+
+CONTEXTO DE CONTINUIDAD (MUY IMPORTANTE):
+Este texto es la continuación directa de una parte anterior ya procesada y formateada.
+El final de esa parte anterior fue:
+"...${tail}..."
+
+REGLAS OBLIGATORIAS PARA ESTA PARTE:
+1. Continúa con exactamente el mismo estilo y jerarquía de títulos (## y ###) que la parte anterior.
+2. NO repitas ni reuses títulos o secciones que ya aparecieron en la parte anterior.
+3. NO añadas encabezados de inicio como si este fuera el comienzo del documento.
+4. Simplemente continúa el flujo del texto donde la parte anterior lo dejó.`;
+}
+
 function buildMetadata(promptKey, lang, inputFile, fecha, extraPrompt, partNum, totalChunks) {
   let meta = `---
 Tipo: ${TIPO_LABELS[promptKey][lang]}
@@ -82,11 +101,14 @@ export async function processText(promptKey, lang, inputFile, outputFile, extraP
       const metadata = buildMetadata(promptKey, lang, inputFile, fecha, extraPrompt);
       await writeFile(outputFile, metadata + text);
       console.log(`¡Éxito! Archivo "${outputFile}" creado.`);
+      await uploadToDrive(outputFile);
     } else {
       console.log(`\nEl archivo es extenso (${rawText.length} caracteres).`);
       console.log(`Dividiendo en ${totalChunks} partes para procesamiento...\n`);
 
       const baseName = outputFile.replace(/\.md$/i, '');
+
+      let previousOutputText = null;
 
       for (let i = 0; i < totalChunks; i++) {
         const partNum = i + 1;
@@ -94,12 +116,23 @@ export async function processText(promptKey, lang, inputFile, outputFile, extraP
 
         console.log(`Procesando parte ${partNum} de ${totalChunks}...`);
 
-        const { text, modelName } = await generateWithRetry(systemPrompt, chunks[i]);
+        // A partir de la parte 2, inyectar contexto de la parte anterior
+        let effectiveSystemPrompt = systemPrompt;
+        if (previousOutputText) {
+          const continuationCtx = buildContinuationContext(previousOutputText);
+          effectiveSystemPrompt = systemPrompt + continuationCtx;
+        }
+
+        const { text, modelName } = await generateWithRetry(effectiveSystemPrompt, chunks[i]);
         console.log(`Parte ${partNum} procesada con: ${modelName}`);
 
         const metadata = buildMetadata(promptKey, lang, inputFile, fecha, extraPrompt, partNum, totalChunks);
         await writeFile(partOutput, metadata + text);
         console.log(`Parte ${partNum} guardada: "${partOutput}"`);
+        await uploadToDrive(partOutput);
+
+        // Guardar el texto generado para pasarlo como contexto a la siguiente parte
+        previousOutputText = text;
       }
 
       console.log(`\n¡Completado! Se procesaron ${totalChunks} partes.`);

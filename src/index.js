@@ -3,6 +3,7 @@ import 'dotenv/config';
 import { listFiles } from './utils/fileUtils.js';
 import { processText } from './modules/processText.js';
 import { analyzeTextFlow } from './modules/analyzeText.js';
+import { downloadTranscript } from './modules/youtube.js';
 
 const INPUT_FOLDER = 'Entradas';
 const OUTPUT_FOLDER = 'Resultados';
@@ -16,9 +17,10 @@ function askQuestion(rl, question) {
 async function mainMenu(rl) {
   console.log('=== yt-transcriber ===\n');
   console.log('1. Procesar texto / PDF');
-  console.log('2. Analizar / Hacer preguntas sobre un texto o PDF\n');
+  console.log('2. Analizar / Hacer preguntas sobre un texto o PDF');
+  console.log('3. Descargar y procesar transcripción de YouTube\n');
 
-  const option = await askQuestion(rl, 'Selecciona una opción (1-2): ');
+  const option = await askQuestion(rl, 'Selecciona una opción (1-3): ');
   return option;
 }
 
@@ -102,6 +104,36 @@ async function processTextFlow(rl) {
   await processText(promptKey, lang, inputFile, outputFile, extraPrompt || null);
 }
 
+async function processYoutubeFlow(rl) {
+  const youtubeUrl = await askQuestion(rl, '\nEnlace del video de YouTube (URL): ');
+  
+  let inputFile;
+  try {
+    inputFile = await downloadTranscript(youtubeUrl);
+  } catch (error) {
+    console.log('Hubo un error al intentar descargar la transcripción. Abortando.');
+    return;
+  }
+
+  const promptKey = await selectContentType(rl);
+  const lang = await selectLanguage(rl);
+
+  const timestamp = new Date().toISOString().split('T')[0].replace(/-/g, '');
+  const defaultOutput = `${OUTPUT_FOLDER}/${promptKey}_${lang}_${timestamp}.md`;
+  let outputFile = await askQuestion(rl, `Archivo de salida (default: ${defaultOutput}): `) || defaultOutput;
+
+  if (!outputFile.endsWith('.md')) {
+    outputFile += '.md';
+  }
+
+  const fileName = outputFile.replace(/.*[\/\\]/, '');
+  outputFile = `${OUTPUT_FOLDER}/${fileName}`;
+
+  const extraPrompt = await askQuestion(rl, 'Prompt extra (opcional, Enter para saltar): ');
+
+  await processText(promptKey, lang, inputFile, outputFile, extraPrompt || null);
+}
+
 async function main() {
   const rl = readline.createInterface({
     input: process.stdin,
@@ -112,6 +144,8 @@ async function main() {
 
   if (option === '2') {
     await analyzeTextFlow(rl);
+  } else if (option === '3') {
+    await processYoutubeFlow(rl);
   } else {
     await processTextFlow(rl);
   }
