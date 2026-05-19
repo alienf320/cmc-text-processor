@@ -1,93 +1,223 @@
 <div class="app-layout">
-  
-  <!-- Sidebar -->
   <nav class="sidebar">
     <div class="logo">
-      <div class="logo-icon">E</div>
-      <h2>Electron App</h2>
+      <div class="logo-icon">YT</div>
+      <h2>YT Transcriber</h2>
     </div>
-    
+
     <ul class="nav-links">
-      <li 
-        (click)="switchView('upload')" 
-        [class.active]="currentView === 'upload'">
-        <span class="icon">📤</span> Subir Archivos
+      <li (click)="switchView('youtube')" [class.active]="currentView === 'youtube'">
+        <span class="icon">▶</span> YouTube
       </li>
-      <li 
-        (click)="switchView('results')" 
-        [class.active]="currentView === 'results'">
-        <span class="icon">📖</span> Ver Resultados
+      <li (click)="switchView('text')" [class.active]="currentView === 'text'">
+        <span class="icon">📝</span> Texto
+      </li>
+      <li (click)="switchView('results')" [class.active]="currentView === 'results'">
+        <span class="icon">📂</span> Resultados
+      </li>
+      <li (click)="switchView('analyze')" [class.active]="currentView === 'analyze'">
+        <span class="icon">❓</span> Preguntar
+      </li>
+      <li (click)="switchView('settings')" [class.active]="currentView === 'settings'">
+        <span class="icon">⚙</span> Config
       </li>
     </ul>
   </nav>
 
-  <!-- Main Content Area -->
   <main class="main-content">
-    
-    @if (currentView === 'upload') {
+
+    @if (error) {
+      <div class="error-bar">{{ error }}</div>
+    }
+
+    <!-- === YOUTUBE VIEW === -->
+    @if (currentView === 'youtube') {
       <div class="view-container slide-in">
-        <h1>Drag & Drop de Archivos Locales</h1>
-        <p class="subtitle">Arrastra cualquier archivo desde tu explorador para obtener su ruta local.</p>
-        
-        <div 
-          class="drop-zone" 
-          [class.dragging]="isDragging">
-          
-          <div class="message">
-            <h2>Arrastra un archivo aquí</h2>
-            <p>O suéltalo en cualquier parte de este recuadro</p>
+        <h1>Procesar video de YouTube</h1>
+        <p class="subtitle">Descarga la transcripción y aplícale formato con IA</p>
+
+        <div class="card">
+          <div class="form-group">
+            <label>URL del video</label>
+            <input [(ngModel)]="youtubeUrl" placeholder="https://youtube.com/watch?v=..." />
           </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Tipo de contenido</label>
+              <select [(ngModel)]="contentType">
+                <option value="video">Transcripción de Video</option>
+                <option value="teologico">Textos Teológicos</option>
+                <option value="libro">Extractos de Libros</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Idioma</label>
+              <select [(ngModel)]="language">
+                <option value="es">Español</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="btn" (click)="processYoutube()" [disabled]="youtubeProcessing || !youtubeUrl">
+            {{ youtubeProcessing ? 'Procesando...' : 'Procesar' }}
+          </button>
         </div>
 
-        @if (droppedFilePaths.length > 0) {
-          <div class="results">
-            <h3>Archivos Detectados (Rutas Locales):</h3>
-            <ul>
-              @for (path of droppedFilePaths; track path) {
-                <li>{{ path }}</li>
-              }
-            </ul>
+        @if (outputContent) {
+          <div class="result-card">
+            <div class="result-header">
+              <span>{{ outputFileName }}</span>
+              <button class="btn-sm" (click)="switchView('results')">Ver resultados</button>
+            </div>
+            <pre class="result-content">{{ outputContent }}</pre>
           </div>
         }
       </div>
     }
 
+    <!-- === TEXT VIEW === -->
+    @if (currentView === 'text') {
+      <div class="view-container slide-in">
+        <h1>Procesar texto</h1>
+        <p class="subtitle">Pegá o escribí el texto para formatear con IA</p>
+
+        <div class="card">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Tipo de contenido</label>
+              <select [(ngModel)]="contentType">
+                <option value="video">Transcripción de Video</option>
+                <option value="teologico">Textos Teológicos</option>
+                <option value="libro">Extractos de Libros</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Idioma</label>
+              <select [(ngModel)]="language">
+                <option value="es">Español</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Texto</label>
+            <textarea [(ngModel)]="textInput" rows="10" placeholder="Pegá el texto aquí..."></textarea>
+          </div>
+
+          <div class="form-actions">
+            <label class="file-label">
+              <span>O subir archivo:</span>
+              <input type="file" (change)="onFileSelected($event)" accept=".txt,.md,.pdf" />
+            </label>
+            @if (selectedFile) {
+              <button class="btn" (click)="uploadFile()" [disabled]="fileProcessing">
+                {{ fileProcessing ? 'Subiendo...' : 'Subir y procesar' }}
+              </button>
+            }
+          </div>
+
+          <button class="btn" (click)="processText()" [disabled]="textProcessing || !textInput">
+            {{ textProcessing ? 'Procesando...' : 'Procesar texto' }}
+          </button>
+        </div>
+
+        @if (outputContent) {
+          <div class="result-card">
+            <div class="result-header">
+              <span>{{ outputFileName }}</span>
+              <button class="btn-sm" (click)="switchView('results')">Ver resultados</button>
+            </div>
+            <pre class="result-content">{{ outputContent }}</pre>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- === RESULTS VIEW === -->
     @if (currentView === 'results') {
       <div class="view-container slide-in">
         <div class="header-action">
           <div>
-            <h1>Carpeta de Resultados</h1>
-            <p class="subtitle">Explora los archivos Markdown de tu directorio local `resultados`.</p>
+            <h1>Resultados</h1>
+            <p class="subtitle">Archivos procesados</p>
           </div>
-          <button class="btn" (click)="loadResultsDir()">Cargar Resultados</button>
+          <button class="btn" (click)="loadResults()">Refrescar</button>
         </div>
 
-        @if (resultsFiles.length > 0) {
-          <div class="file-browser">
-            <div class="file-list">
-              <h3>Archivos MD</h3>
+        <div class="file-browser">
+          <div class="file-list">
+            <h3>Archivos</h3>
+            @if (results.length > 0) {
               <ul>
-                @for (file of resultsFiles; track file.name) {
-                  <li (click)="loadFileContent(file)" [class.active]="selectedFileName === file.name">
-                    📄 {{ file.name }}
+                @for (file of results; track file) {
+                  <li (click)="selectResult(file)" [class.active]="selectedResult === file">
+                    📄 {{ file }}
                   </li>
                 }
               </ul>
-            </div>
-            <div class="file-preview">
-              <h3>Vista Previa: <span class="highlight">{{ selectedFileName || 'Ninguno' }}</span></h3>
-              @if (selectedFileContent) {
-                <pre class="markdown-preview">{{ selectedFileContent }}</pre>
-              } @else {
-                <div class="empty-preview">Selecciona un archivo para ver su contenido</div>
-              }
-            </div>
+            } @else {
+              <div class="empty-state">No hay archivos procesados</div>
+            }
           </div>
-        } @else {
-          <div class="empty-state">
-            <p>Haz clic en "Cargar Resultados" para leer la carpeta local.</p>
+          <div class="file-preview">
+            <h3>Vista previa: <span class="highlight">{{ selectedResult || 'Ninguno' }}</span></h3>
+            @if (selectedContent) {
+              <pre class="markdown-preview">{{ selectedContent }}</pre>
+            } @else {
+              <div class="empty-preview">Seleccioná un archivo</div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- === ANALYZE VIEW === -->
+    @if (currentView === 'analyze') {
+      <div class="view-container slide-in">
+        <h1>Preguntar sobre un texto</h1>
+        <p class="subtitle">Hacé preguntas sobre un texto ya procesado</p>
+
+        <div class="card">
+          <div class="form-group">
+            <label>Texto (pegá el contenido del resultado)</label>
+            <textarea [(ngModel)]="analyzeText" rows="8" placeholder="Pegá el contenido del documento..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Tu pregunta</label>
+            <input [(ngModel)]="analyzeQuestion" placeholder="Ej: ¿Cuál es el tema principal?" />
+          </div>
+          <button class="btn" (click)="analyze()" [disabled]="analyzeProcessing || !analyzeText || !analyzeQuestion">
+            {{ analyzeProcessing ? 'Analizando...' : 'Preguntar' }}
+          </button>
+        </div>
+
+        @if (analyzeAnswer) {
+          <div class="result-card">
+            <div class="result-header">
+              <span>Respuesta</span>
+            </div>
+            <div class="result-content">{{ analyzeAnswer }}</div>
           </div>
         }
+      </div>
+    }
+
+    <!-- === SETTINGS VIEW === -->
+    @if (currentView === 'settings') {
+      <div class="view-container slide-in">
+        <h1>Configuración</h1>
+        <p class="subtitle">URL de la API</p>
+
+        <div class="card">
+          <div class="form-group">
+            <label>API URL</label>
+            <input [(ngModel)]="apiUrl" placeholder="http://localhost:3000" />
+          </div>
+          <button class="btn" (click)="applyApiUrl()">Aplicar</button>
+        </div>
       </div>
     }
 

@@ -3,20 +3,29 @@ import fs from 'fs';
 import path from 'path';
 import readline from 'readline';
 
-// Rutas de los archivos de credenciales y token (en la raíz del proyecto)
-const CREDENTIALS_PATH = 'credentials.json';
-const TOKEN_PATH = 'token.json';
-
-// Permiso de escritura en Drive del usuario
 const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
 
-/**
- * Carga o genera el token OAuth2.
- * En el primer uso, abre el navegador y pide al usuario que autorice.
- * A partir del segundo uso, lee el token guardado y lo refresca automáticamente.
- */
-async function authenticate() {
-  // Verificar que exista credentials.json
+async function authenticateWithSA() {
+  const saBase64 = process.env.GOOGLE_DRIVE_SERVICE_ACCOUNT;
+  if (!saBase64) {
+    throw new Error('SERVICE_ACCOUNT_MISSING');
+  }
+
+  const keyJson = JSON.parse(Buffer.from(saBase64, 'base64').toString('utf-8'));
+  const auth = new google.auth.JWT(
+    keyJson.client_email,
+    null,
+    keyJson.private_key,
+    SCOPES,
+  );
+
+  return auth;
+}
+
+async function authenticateWithOAuth() {
+  const CREDENTIALS_PATH = 'credentials.json';
+  const TOKEN_PATH = 'token.json';
+
   if (!fs.existsSync(CREDENTIALS_PATH)) {
     throw new Error(
       `No se encontró el archivo "${CREDENTIALS_PATH}".\n` +
@@ -34,27 +43,30 @@ async function authenticate() {
   const { client_secret, client_id, redirect_uris } = credentials.installed || credentials.web;
   const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
 
-  // Si ya existe el token, usarlo (y refrescarlo si venció)
   if (fs.existsSync(TOKEN_PATH)) {
     const token = JSON.parse(fs.readFileSync(TOKEN_PATH, 'utf-8'));
     oAuth2Client.setCredentials(token);
-
-    // Refrescar el access_token si está vencido
     oAuth2Client.on('tokens', (newTokens) => {
       const updated = { ...token, ...newTokens };
       fs.writeFileSync(TOKEN_PATH, JSON.stringify(updated, null, 2));
     });
-
     return oAuth2Client;
   }
 
-  // Primera vez: iniciar flujo de autorización
   return await authorizeFirstTime(oAuth2Client);
 }
 
-/**
- * Flujo interactivo de autorización OAuth2 (solo se ejecuta la primera vez).
- */
+async function authenticate() {
+  try {
+    return await authenticateWithSA();
+  } catch (error) {
+    if (error.message === 'SERVICE_ACCOUNT_MISSING') {
+      return await authenticateWithOAuth();
+    }
+    throw error;
+  }
+}
+
 function authorizeFirstTime(oAuth2Client) {
   return new Promise((resolve, reject) => {
     const authUrl = oAuth2Client.generateAuthUrl({
