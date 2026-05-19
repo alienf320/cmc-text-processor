@@ -177,3 +177,60 @@ export async function uploadToDrive(localFilePath) {
     // No lanzamos el error para que el proceso principal no se interrumpa
   }
 }
+
+/**
+ * Lista los archivos disponibles en la carpeta "Entradas" de Drive.
+ * @returns {Array<{id: string, name: string}>}
+ */
+export async function listDriveInputFiles() {
+  const folderName = process.env.DRIVE_INPUT_FOLDER || 'Entradas';
+
+  const auth = await authenticate();
+  const drive = google.drive({ version: 'v3', auth });
+
+  const folderId = await getOrCreateFolder(drive, folderName);
+
+  const res = await drive.files.list({
+    q: `'${folderId}' in parents and trashed=false and (
+      mimeType='text/plain' or
+      mimeType='application/pdf' or
+      name contains '.md' or
+      name contains '.txt'
+    )`,
+    fields: 'files(id, name)',
+    spaces: 'drive',
+    orderBy: 'name',
+  });
+
+  return res.data.files;
+}
+
+/**
+ * Descarga un archivo de Drive a la carpeta local Entradas/.
+ * @param {string} fileId  - ID del archivo en Drive
+ * @param {string} fileName - Nombre del archivo
+ * @returns {string} Ruta local del archivo descargado
+ */
+export async function downloadFromDrive(fileId, fileName) {
+  const auth = await authenticate();
+  const drive = google.drive({ version: 'v3', auth });
+
+  const localDir = 'Entradas';
+  fs.mkdirSync(localDir, { recursive: true });
+  const localPath = path.join(localDir, fileName);
+
+  const dest = fs.createWriteStream(localPath);
+
+  const res = await drive.files.get(
+    { fileId, alt: 'media' },
+    { responseType: 'stream' }
+  );
+
+  return new Promise((resolve, reject) => {
+    res.data
+      .on('error', reject)
+      .pipe(dest)
+      .on('finish', () => resolve(localPath))
+      .on('error', reject);
+  });
+}
