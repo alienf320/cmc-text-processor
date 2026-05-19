@@ -65,6 +65,23 @@
           </button>
         </div>
 
+        @if (showManualTranscript) {
+          <div class="card" style="border-color: #ffa500;">
+            <p style="color: #ffa500; margin-top: 0;">
+              ⚠️ No se pudo descargar la transcripción automáticamente.
+              Andá al video en YouTube, click en "Mostrar transcripción", copiá el texto y pegalo abajo:
+            </p>
+            <div class="form-group">
+              <label>Transcripción manual</label>
+              <textarea [(ngModel)]="youtubeManualTranscript" rows="8"
+                placeholder="Pegá acá la transcripción copiada de YouTube..."></textarea>
+            </div>
+            <button class="btn" (click)="processYoutubeManual()" [disabled]="youtubeProcessing || !youtubeManualTranscript">
+              {{ youtubeProcessing ? 'Procesando...' : 'Procesar transcripción manual' }}
+            </button>
+          </div>
+        }
+
         @if (outputContent) {
           <div class="result-card">
             <div class="result-header">

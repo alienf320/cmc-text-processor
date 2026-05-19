@@ -20,6 +20,9 @@ export class App {
 
   youtubeUrl = '';
   youtubeProcessing = false;
+  youtubeManualTranscript = '';
+  youtubeVideoId = '';
+  showManualTranscript = false;
 
   textInput = '';
   textFileName = '';
@@ -48,6 +51,8 @@ export class App {
     this.error = null;
     this.outputContent = null;
     this.analyzeAnswer = '';
+    this.showManualTranscript = false;
+    this.youtubeManualTranscript = '';
 
     if (view === 'results') {
       this.loadResults();
@@ -64,6 +69,8 @@ export class App {
     this.error = null;
     this.outputContent = null;
     this.outputFileName = null;
+    this.showManualTranscript = false;
+    this.youtubeManualTranscript = '';
 
     try {
       const result = await this.api.processYoutube(this.youtubeUrl, this.contentType, this.language).toPromise();
@@ -72,10 +79,42 @@ export class App {
         this.outputFileName = result.fileName;
       }
     } catch (err: any) {
-      this.error = err.error?.error || err.message || 'Error al procesar YouTube';
+      const msg = err.error?.error || err.message || '';
+      if (msg.includes('Transcript is disabled') || msg.includes('No transcripts')) {
+        this.showManualTranscript = true;
+        this.youtubeVideoId = this.extractVideoId(this.youtubeUrl);
+        this.error = 'El video no tiene subtítulos automáticos. Podés pegarlos manualmente abajo.';
+      } else {
+        this.error = msg;
+      }
     } finally {
       this.youtubeProcessing = false;
     }
+  }
+
+  async processYoutubeManual() {
+    if (!this.youtubeManualTranscript) return;
+    this.youtubeProcessing = true;
+    this.error = null;
+    this.outputContent = null;
+    this.outputFileName = null;
+
+    try {
+      const result = await this.api.processText(this.contentType, this.language, this.youtubeManualTranscript, '').toPromise();
+      if (result) {
+        this.outputContent = result.content;
+        this.outputFileName = result.fileName;
+      }
+    } catch (err: any) {
+      this.error = err.error?.error || err.message || 'Error al procesar';
+    } finally {
+      this.youtubeProcessing = false;
+    }
+  }
+
+  extractVideoId(url: string): string {
+    const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+    return (match && match[2]?.length === 11) ? match[2] : '';
   }
 
   async processText() {
