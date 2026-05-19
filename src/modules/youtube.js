@@ -1,4 +1,4 @@
-import { YoutubeTranscript } from 'youtube-transcript';
+import { fetchTranscript } from 'youtube-transcript';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -10,6 +10,8 @@ function extractVideoId(url) {
   return (match && match[2].length === 11) ? match[2] : null;
 }
 
+const LANGUAGES = ['es', 'en', 'pt', 'fr', 'de', 'it'];
+
 export async function downloadTranscript(youtubeUrl) {
   try {
     const videoId = extractVideoId(youtubeUrl);
@@ -18,8 +20,28 @@ export async function downloadTranscript(youtubeUrl) {
     }
 
     console.log(`\nDescargando transcripción del video ${videoId}...`);
-    const transcript = await YoutubeTranscript.fetchTranscript(videoId);
-    
+
+    let transcript = null;
+    let lastError = null;
+
+    for (const lang of LANGUAGES) {
+      try {
+        transcript = await fetchTranscript(videoId, { lang });
+        console.log(`Transcripción encontrada en idioma: ${lang}`);
+        break;
+      } catch (error) {
+        lastError = error;
+      }
+    }
+
+    if (!transcript) {
+      try {
+        transcript = await fetchTranscript(videoId);
+      } catch (error) {
+        throw lastError || error;
+      }
+    }
+
     if (!transcript || transcript.length === 0) {
       throw new Error('No se encontraron subtítulos para este video');
     }
@@ -29,11 +51,10 @@ export async function downloadTranscript(youtubeUrl) {
     const filename = `yt_${videoId}_${timestamp}.txt`;
     const filepath = path.join(INPUT_FOLDER, filename);
 
-    // Ensure the folder exists just in case
     await fs.mkdir(INPUT_FOLDER, { recursive: true });
-    
+
     await fs.writeFile(filepath, fullText, 'utf-8');
-    
+
     console.log(`Transcripción guardada en: ${filepath}`);
     return filepath;
   } catch (error) {
