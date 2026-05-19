@@ -19,9 +19,16 @@ export interface ResultsList {
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  private baseUrl = 'http://localhost:3000';
+  private baseUrl: string;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    const host = window.location.hostname;
+    if (host === 'localhost' || host === '127.0.0.1') {
+      this.baseUrl = 'http://localhost:3000';
+    } else {
+      this.baseUrl = 'https://cmc-text-processor.onrender.com';
+    }
+  }
 
   setBaseUrl(url: string) {
     this.baseUrl = url.replace(/\/+$/, '');
