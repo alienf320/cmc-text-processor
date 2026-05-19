@@ -29,6 +29,40 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+app.get('/api/diagnose', async (req, res) => {
+  try {
+    const videoId = req.query.v || 'SrYVdJTVvgw';
+    const clients = [
+      { clientName: 'ANDROID', clientVersion: '20.10.38' },
+      { clientName: 'ANDROID', clientVersion: '21.05.10' },
+      { clientName: 'IOS', clientVersion: '20.10.30' },
+      { clientName: 'WEB', clientVersion: '2.20250321.00.00' },
+    ];
+    const results = [];
+    for (const client of clients) {
+      try {
+        const resp = await fetch('https://www.youtube.com/youtubei/v1/player?prettyPrint=false', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ context: { client }, videoId }),
+          signal: AbortSignal.timeout(10000),
+        });
+        const data = await resp.json();
+        const status = data?.playabilityStatus?.status;
+        const tracks = data?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
+        const trackCount = Array.isArray(tracks) ? tracks.length : 0;
+        const langs = trackCount > 0 ? tracks.map(t => t.languageCode) : [];
+        results.push({ client: client.clientName, status, tracks: trackCount, langs });
+      } catch (e) {
+        results.push({ client: client.clientName, error: e.message });
+      }
+    }
+    res.json({ videoId, results, serverIP: req.ip });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.post('/api/process', async (req, res) => {
   try {
     const { text, contentType = 'video', language = 'es', extraPrompt = null, fileName = null } = req.body;
