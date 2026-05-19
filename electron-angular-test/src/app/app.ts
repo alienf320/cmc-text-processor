@@ -20,8 +20,6 @@ export class App {
 
   youtubeUrl = '';
   youtubeProcessing = false;
-  youtubeManualTranscript = '';
-  showManualTranscript = false;
 
   textInput = '';
   textProcessing = false;
@@ -42,8 +40,6 @@ export class App {
   outputFileName: string | null = null;
   error: string | null = null;
 
-  private subs: any[] = [];
-
   constructor(private api: ApiService, private cdr: ChangeDetectorRef) {
     const host = window.location.hostname;
     if (host !== 'localhost' && host !== '127.0.0.1') {
@@ -57,8 +53,6 @@ export class App {
     this.error = null;
     this.outputContent = null;
     this.analyzeAnswer = '';
-    this.showManualTranscript = false;
-    this.youtubeManualTranscript = '';
 
     if (view === 'results') {
       this.loadResults();
@@ -71,58 +65,41 @@ export class App {
     this.cdr.detectChanges();
   }
 
-  processYoutube() {
+  async processYoutube() {
     if (!this.youtubeUrl) return;
     this.youtubeProcessing = true;
     this.error = null;
     this.outputContent = null;
     this.outputFileName = null;
-    this.showManualTranscript = false;
-    this.youtubeManualTranscript = '';
     this.cdr.detectChanges();
 
-    this.api.processYoutube(this.youtubeUrl, this.contentType, this.language).subscribe({
-      next: (result) => {
-        this.outputContent = result.content;
-        this.outputFileName = result.fileName;
-        this.youtubeProcessing = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        const msg = err.error?.error || err.message || '';
-        if (msg.includes('Transcript is disabled') || msg.includes('No transcripts')) {
-          this.showManualTranscript = true;
-          this.error = 'El video no tiene subtítulos. Pegalos manualmente abajo.';
-        } else {
-          this.error = msg;
-        }
-        this.youtubeProcessing = false;
-        this.cdr.detectChanges();
-      },
-    });
-  }
+    try {
+      const transcript = await this.api.fetchYoutubeTranscript(this.youtubeUrl);
 
-  processYoutubeManual() {
-    if (!this.youtubeManualTranscript) return;
-    this.youtubeProcessing = true;
-    this.error = null;
-    this.outputContent = null;
-    this.outputFileName = null;
-    this.cdr.detectChanges();
+      this.api.processText(this.contentType, this.language, transcript, '').subscribe({
+        next: (result) => {
+          this.outputContent = result.content;
+          this.outputFileName = result.fileName;
+          this.youtubeProcessing = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.error = err.error?.error || err.message || 'Error al procesar con Gemini';
+          this.youtubeProcessing = false;
+          this.cdr.detectChanges();
+        },
+      });
+    } catch (err: any) {
+      this.youtubeProcessing = false;
+      this.cdr.detectChanges();
 
-    this.api.processText(this.contentType, this.language, this.youtubeManualTranscript, '').subscribe({
-      next: (result) => {
-        this.outputContent = result.content;
-        this.outputFileName = result.fileName;
-        this.youtubeProcessing = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        this.error = err.error?.error || err.message || 'Error al procesar';
-        this.youtubeProcessing = false;
-        this.cdr.detectChanges();
-      },
-    });
+      const msg = err.message || '';
+      if (msg.includes('subtítulos') || msg.includes('transcripción')) {
+        this.error = 'El video no tiene subtítulos disponibles. Probá con otro video.';
+      } else {
+        this.error = msg;
+      }
+    }
   }
 
   processText() {
