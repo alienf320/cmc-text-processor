@@ -1,15 +1,14 @@
+import 'dotenv/config';
 import express from 'express';
 import multer from 'multer';
 import cors from 'cors';
-import 'dotenv/config';
+import path from 'path';
+import fs from 'fs/promises';
+import { fileURLToPath } from 'url';
 import { processText } from './src/modules/processText.js';
 import { downloadTranscript } from './src/modules/youtube.js';
 import { generateWithRetry } from './src/services/ai.js';
 import { readFile, writeFile, listFiles } from './src/utils/fileUtils.js';
-import { uploadToDrive } from './src/services/drive.js';
-import path from 'path';
-import fs from 'fs/promises';
-import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUTPUT_FOLDER = 'Resultados';
@@ -36,10 +35,6 @@ app.post('/api/process', async (req, res) => {
 
     if (!text) {
       return res.status(400).json({ error: 'El campo "text" es requerido' });
-    }
-
-    if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
-      return res.status(500).json({ error: 'API Key de Google no configurada' });
     }
 
     const timestamp = new Date().toISOString().split('T')[0].replace(/-/g, '');
@@ -181,12 +176,23 @@ app.get('/api/results/:filename', async (req, res) => {
 });
 
 const angularDist = path.join(__dirname, 'electron-angular-test', 'dist', 'electron-angular-test', 'browser');
+
 app.use(express.static(angularDist));
 
 app.get('*', (req, res) => {
-  if (!req.path.startsWith('/api')) {
-    res.sendFile(path.join(angularDist, 'index.html'));
-  }
+  if (req.path.startsWith('/api')) return;
+  const indexPath = path.join(angularDist, 'index.html');
+  res.sendFile(indexPath, err => {
+    if (err) res.status(404).json({ error: 'Not found', path: req.path });
+  });
+});
+
+process.on('uncaughtException', err => {
+  console.error('UNCAUGHT EXCEPTION:', err);
+});
+
+process.on('unhandledRejection', err => {
+  console.error('UNHANDLED REJECTION:', err);
 });
 
 app.listen(PORT, '0.0.0.0', () => {
