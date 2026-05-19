@@ -1,7 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { firstValueFrom } from 'rxjs';
-import { ApiService } from './services/api.service';
+import { ApiService, ProcessResult } from './services/api.service';
 
 type View = 'youtube' | 'text' | 'analyze' | 'results' | 'settings';
 
@@ -22,11 +21,9 @@ export class App {
   youtubeUrl = '';
   youtubeProcessing = false;
   youtubeManualTranscript = '';
-  youtubeVideoId = '';
   showManualTranscript = false;
 
   textInput = '';
-  textFileName = '';
   textProcessing = false;
 
   selectedFile: File | null = null;
@@ -45,7 +42,15 @@ export class App {
   outputFileName: string | null = null;
   error: string | null = null;
 
-  constructor(private api: ApiService) {}
+  private subs: any[] = [];
+
+  constructor(private api: ApiService, private cdr: ChangeDetectorRef) {
+    const host = window.location.hostname;
+    if (host !== 'localhost' && host !== '127.0.0.1') {
+      this.apiUrl = 'https://cmc-text-processor.onrender.com';
+      this.api.setBaseUrl(this.apiUrl);
+    }
+  }
 
   switchView(view: View) {
     this.currentView = view;
@@ -58,13 +63,15 @@ export class App {
     if (view === 'results') {
       this.loadResults();
     }
+    this.cdr.detectChanges();
   }
 
   applyApiUrl() {
     this.api.setBaseUrl(this.apiUrl);
+    this.cdr.detectChanges();
   }
 
-  async processYoutube() {
+  processYoutube() {
     if (!this.youtubeUrl) return;
     this.youtubeProcessing = true;
     this.error = null;
@@ -72,138 +79,155 @@ export class App {
     this.outputFileName = null;
     this.showManualTranscript = false;
     this.youtubeManualTranscript = '';
+    this.cdr.detectChanges();
 
-    try {
-      const result = await firstValueFrom(this.api.processYoutube(this.youtubeUrl, this.contentType, this.language));
-      if (result) {
+    this.api.processYoutube(this.youtubeUrl, this.contentType, this.language).subscribe({
+      next: (result) => {
         this.outputContent = result.content;
         this.outputFileName = result.fileName;
-      }
-    } catch (err: any) {
-      const msg = err.error?.error || err.message || '';
-      if (msg.includes('Transcript is disabled') || msg.includes('No transcripts')) {
-        this.showManualTranscript = true;
-        this.youtubeVideoId = this.extractVideoId(this.youtubeUrl);
-        this.error = 'El video no tiene subtítulos automáticos. Podés pegarlos manualmente abajo.';
-      } else {
-        this.error = msg;
-      }
-    } finally {
-      this.youtubeProcessing = false;
-    }
+        this.youtubeProcessing = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        const msg = err.error?.error || err.message || '';
+        if (msg.includes('Transcript is disabled') || msg.includes('No transcripts')) {
+          this.showManualTranscript = true;
+          this.error = 'El video no tiene subtítulos. Pegalos manualmente abajo.';
+        } else {
+          this.error = msg;
+        }
+        this.youtubeProcessing = false;
+        this.cdr.detectChanges();
+      },
+    });
   }
 
-  async processYoutubeManual() {
+  processYoutubeManual() {
     if (!this.youtubeManualTranscript) return;
     this.youtubeProcessing = true;
     this.error = null;
     this.outputContent = null;
     this.outputFileName = null;
+    this.cdr.detectChanges();
 
-    try {
-      const result = await firstValueFrom(this.api.processText(this.contentType, this.language, this.youtubeManualTranscript, ''));
-
-      if (result) {
+    this.api.processText(this.contentType, this.language, this.youtubeManualTranscript, '').subscribe({
+      next: (result) => {
         this.outputContent = result.content;
         this.outputFileName = result.fileName;
-      }
-    } catch (err: any) {
-      this.error = err.error?.error || err.message || 'Error al procesar';
-    } finally {
-      this.youtubeProcessing = false;
-    }
+        this.youtubeProcessing = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.error = err.error?.error || err.message || 'Error al procesar';
+        this.youtubeProcessing = false;
+        this.cdr.detectChanges();
+      },
+    });
   }
 
-  extractVideoId(url: string): string {
-    const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
-    return (match && match[2]?.length === 11) ? match[2] : '';
-  }
-
-  async processText() {
+  processText() {
     if (!this.textInput) return;
     this.textProcessing = true;
     this.error = null;
     this.outputContent = null;
     this.outputFileName = null;
+    this.cdr.detectChanges();
 
-    try {
-      const result = await firstValueFrom(this.api.processText(this.contentType, this.language, this.textInput, ''));
-
-      if (result) {
+    this.api.processText(this.contentType, this.language, this.textInput, '').subscribe({
+      next: (result) => {
         this.outputContent = result.content;
         this.outputFileName = result.fileName;
-      }
-    } catch (err: any) {
-      this.error = err.error?.error || err.message || 'Error al procesar texto';
-    } finally {
-      this.textProcessing = false;
-    }
+        this.textProcessing = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.error = err.error?.error || err.message || 'Error al procesar texto';
+        this.textProcessing = false;
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   onFileSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.selectedFile = input.files?.[0] || null;
+    this.selectedFile = (event.target as HTMLInputElement).files?.[0] || null;
   }
 
-  async uploadFile() {
+  uploadFile() {
     if (!this.selectedFile) return;
     this.fileProcessing = true;
     this.error = null;
     this.outputContent = null;
     this.outputFileName = null;
+    this.cdr.detectChanges();
 
     const formData = new FormData();
     formData.append('file', this.selectedFile);
     formData.append('contentType', this.contentType);
     formData.append('language', this.language);
 
-    try {
-      const result = await firstValueFrom(this.api.uploadFile(formData));
-      if (result) {
+    this.api.uploadFile(formData).subscribe({
+      next: (result) => {
         this.outputContent = result.content;
         this.outputFileName = result.fileName;
-      }
-    } catch (err: any) {
-      this.error = err.error?.error || err.message || 'Error al subir archivo';
-    } finally {
-      this.fileProcessing = false;
-    }
+        this.fileProcessing = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.error = err.error?.error || err.message || 'Error al subir archivo';
+        this.fileProcessing = false;
+        this.cdr.detectChanges();
+      },
+    });
   }
 
-  async loadResults() {
-    try {
-      const result = await firstValueFrom(this.api.listResults());
-      this.results = result?.files || [];
-    } catch (err: any) {
-      this.error = 'Error al cargar resultados';
-    }
+  loadResults() {
+    this.api.listResults().subscribe({
+      next: (result) => {
+        this.results = result?.files || [];
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.error = 'Error al cargar resultados';
+        this.cdr.detectChanges();
+      },
+    });
   }
 
-  async selectResult(filename: string) {
+  selectResult(filename: string) {
     this.selectedResult = filename;
-    try {
-      const result = await firstValueFrom(this.api.getResult(filename));
-      this.selectedContent = result?.content || null;
-    } catch {
-      this.selectedContent = 'Error al leer el archivo';
-    }
+    this.selectedContent = null;
+    this.cdr.detectChanges();
+
+    this.api.getResult(filename).subscribe({
+      next: (result) => {
+        this.selectedContent = result?.content || null;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.selectedContent = 'Error al leer el archivo';
+        this.cdr.detectChanges();
+      },
+    });
   }
 
-  async analyze() {
+  analyze() {
     if (!this.analyzeText || !this.analyzeQuestion) return;
     this.analyzeProcessing = true;
     this.analyzeAnswer = '';
     this.error = null;
+    this.cdr.detectChanges();
 
-    try {
-      const result = await firstValueFrom(this.api.analyzeText(this.analyzeText, this.analyzeQuestion));
-      if (result) {
+    this.api.analyzeText(this.analyzeText, this.analyzeQuestion).subscribe({
+      next: (result) => {
         this.analyzeAnswer = result.answer;
-      }
-    } catch (err: any) {
-      this.error = err.error?.error || err.message || 'Error al analizar';
-    } finally {
-      this.analyzeProcessing = false;
-    }
+        this.analyzeProcessing = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.error = err.error?.error || err.message || 'Error al analizar';
+        this.analyzeProcessing = false;
+        this.cdr.detectChanges();
+      },
+    });
   }
 }
