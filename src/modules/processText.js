@@ -135,7 +135,18 @@ export async function processText(promptKey, lang, inputFile, outputFile, extraP
         previousOutputText = text;
       }
 
-      console.log(`\n¡Completado! Se procesaron ${totalChunks} partes.`);
+      // Mergear todas las partes en el archivo final
+      let merged = '';
+      for (let i = 0; i < totalChunks; i++) {
+        const partPath = `${baseName}_part${i + 1}.md`;
+        try {
+          merged += (await readFile(partPath)) + '\n\n';
+        } catch (e) {
+          console.error(`No se pudo leer ${partPath}: ${e.message}`);
+        }
+      }
+      await writeFile(outputFile, merged.trim());
+      console.log(`¡Completado! Se procesaron ${totalChunks} partes. Archivo final: "${outputFile}"`);
     }
   } catch (error) {
     console.error('Error detallado:', error.message);
