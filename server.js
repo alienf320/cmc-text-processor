@@ -44,13 +44,31 @@ app.get('/api/drive-test', async (req, res) => {
     if (!keyJson.client_email) return res.json({ step: 'client_email', ok: false, error: 'Missing client_email' });
     if (!keyJson.private_key) return res.json({ step: 'private_key', ok: false, error: 'Missing private_key' });
 
-    const { google } = await import('googleapis');
-    const auth = new google.auth.JWT(
-      keyJson.client_email, null, keyJson.private_key,
-      ['https://www.googleapis.com/auth/drive.file'],
-    );
+    const pkInfo = {
+      type: typeof keyJson.private_key,
+      length: keyJson.private_key.length,
+      startsWith: keyJson.private_key.substring(0, 30),
+      endsWith: keyJson.private_key.substring(keyJson.private_key.length - 30),
+      includesNewlines: keyJson.private_key.includes('\n'),
+      includesLiteralN: keyJson.private_key.includes('\\n'),
+    };
 
-    await auth.authorize();
+    const { google } = await import('googleapis');
+    let auth;
+    try {
+      auth = new google.auth.JWT(
+        keyJson.client_email, null, keyJson.private_key,
+        ['https://www.googleapis.com/auth/drive.file'],
+      );
+    } catch (e) {
+      return res.json({ step: 'create_jwt', ok: false, error: e.message, pkInfo });
+    }
+
+    try {
+      await auth.authorize();
+    } catch (e) {
+      return res.json({ step: 'authorize', ok: false, error: e.message, pkInfo });
+    }
     const drive = google.drive({ version: 'v3', auth });
     const list = await drive.files.list({ pageSize: 1, fields: 'files(id, name)' });
     res.json({ step: 'drive_list', ok: true, files: list.data.files });
