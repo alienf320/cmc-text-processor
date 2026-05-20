@@ -29,6 +29,36 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+app.get('/api/drive-test', async (req, res) => {
+  try {
+    const saBase64 = process.env.GOOGLE_DRIVE_SERVICE_ACCOUNT;
+    if (!saBase64) return res.json({ step: 'env_var', ok: false, error: 'GOOGLE_DRIVE_SERVICE_ACCOUNT not set' });
+
+    let keyJson;
+    try {
+      keyJson = JSON.parse(Buffer.from(saBase64, 'base64').toString('utf-8'));
+    } catch (e) {
+      return res.json({ step: 'parse_json', ok: false, error: e.message });
+    }
+
+    if (!keyJson.client_email) return res.json({ step: 'client_email', ok: false, error: 'Missing client_email' });
+    if (!keyJson.private_key) return res.json({ step: 'private_key', ok: false, error: 'Missing private_key' });
+
+    const { google } = await import('googleapis');
+    const auth = new google.auth.JWT(
+      keyJson.client_email, null, keyJson.private_key,
+      ['https://www.googleapis.com/auth/drive.file'],
+    );
+
+    await auth.authorize();
+    const drive = google.drive({ version: 'v3', auth });
+    const list = await drive.files.list({ pageSize: 1, fields: 'files(id, name)' });
+    res.json({ step: 'drive_list', ok: true, files: list.data.files });
+  } catch (e) {
+    res.json({ step: 'error', ok: false, error: e.message, stack: e.stack?.substring(0, 500) });
+  }
+});
+
 app.get('/api/diagnose', async (req, res) => {
   try {
     const videoId = req.query.v || 'SrYVdJTVvgw';
