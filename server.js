@@ -70,9 +70,49 @@ app.get('/api/drive-test', async (req, res) => {
     } catch (e) {
       return res.json({ step: 'authorize', ok: false, error: e.message, pkInfo });
     }
+
     const drive = google.drive({ version: 'v3', auth });
-    const list = await drive.files.list({ pageSize: 1, fields: 'files(id, name)' });
-    res.json({ step: 'drive_list', ok: true, files: list.data.files });
+    const folderName = process.env.DRIVE_FOLDER_NAME || 'yt-transcriber';
+
+    // Test 1: Search for folder in all accessible drives
+    const searchAll = await drive.files.list({
+      q: `name='${folderName}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
+      fields: 'files(id, name, owners, shared)',
+      corpora: 'allDrives',
+      includeItemsFromAllDrives: true,
+      supportsAllDrives: true,
+    });
+
+    // Test 2: Search only in 'user' context (SA's own Drive + shared with me)
+    const searchUser = await drive.files.list({
+      q: `name='${folderName}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
+      fields: 'files(id, name, owners, shared)',
+      spaces: 'drive',
+    });
+
+    // Test 3: List all folders the SA has access to (limit 10)
+    const allFolders = await drive.files.list({
+      q: `mimeType='application/vnd.google-apps.folder' and trashed=false`,
+      fields: 'files(id, name, owners, shared)',
+      corpora: 'allDrives',
+      includeItemsFromAllDrives: true,
+      supportsAllDrives: true,
+      pageSize: 20,
+      orderBy: 'name',
+    });
+
+    // Test 4: Check about/quota
+    const about = await drive.about.get({ fields: 'storageQuota, user' });
+
+    res.json({
+      sa_email: keyJson.client_email,
+      folder_name: folderName,
+      search_all_drives: searchAll.data.files.map(f => ({ id: f.id, name: f.name, shared: f.shared, owners: f.owners?.map(o => o.emailAddress) })),
+      search_user_drive: searchUser.data.files.map(f => ({ id: f.id, name: f.name, shared: f.shared })),
+      all_folders_preview: allFolders.data.files.map(f => ({ id: f.id, name: f.name, shared: f.shared, owners: f.owners?.map(o => o.emailAddress) })),
+      quota: about.data.storageQuota,
+      user: about.data.user,
+    });
   } catch (e) {
     res.json({ step: 'error', ok: false, error: e.message, stack: e.stack?.substring(0, 500) });
   }

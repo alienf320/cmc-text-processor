@@ -96,7 +96,7 @@ function authorizeFirstTime(oAuth2Client) {
  * @returns {string} folderId
  */
 async function getOrCreateFolder(drive, folderName) {
-  // Buscar en el Drive del SA y en carpetas compartidas
+  // Buscar en todas partes (My Drive, Shared Drive, compartidos con el SA)
   const res = await drive.files.list({
     q: `name='${folderName}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
     fields: 'files(id, name)',
@@ -109,17 +109,11 @@ async function getOrCreateFolder(drive, folderName) {
     return res.data.files[0].id;
   }
 
-  // No existe → crearla en el Drive del SA
-  const folder = await drive.files.create({
-    requestBody: {
-      name: folderName,
-      mimeType: 'application/vnd.google-apps.folder',
-    },
-    fields: 'id',
-  });
-
-  console.log(`📁 Carpeta "${folderName}" creada en Google Drive.`);
-  return folder.data.id;
+  throw new Error(
+    `No se encontró la carpeta "${folderName}" en Google Drive.\n\n` +
+    `Creá una carpeta llamada "${folderName}" en tu Drive, compartila con ` +
+    `el email de la Service Account como Editor, y volvé a intentar.`
+  );
 }
 
 /**
