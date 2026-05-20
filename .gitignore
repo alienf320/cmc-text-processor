@@ -46,7 +46,17 @@ coverage/
 # Optional REPL history
 .node_repl_history
 
-# Google Drive OAuth credentials
+# Google Drive OAuth credentials & service account keys
+credentials.json
+token.json
+gen-lang-client-*.json
+
+# Test/experimental scripts
+test-*
+test_*
+debug-*
+
+# Google Drive OAuth credentials & service account keys
 credentials.json
 token.json
 
