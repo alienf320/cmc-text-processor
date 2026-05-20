@@ -56,10 +56,11 @@ app.get('/api/drive-test', async (req, res) => {
     const { google } = await import('googleapis');
     let auth;
     try {
-      auth = new google.auth.JWT(
-        keyJson.client_email, null, keyJson.private_key,
-        ['https://www.googleapis.com/auth/drive.file'],
-      );
+      auth = new google.auth.JWT({
+        email: keyJson.client_email,
+        key: keyJson.private_key,
+        scopes: ['https://www.googleapis.com/auth/drive.file'],
+      });
     } catch (e) {
       return res.json({ step: 'create_jwt', ok: false, error: e.message, pkInfo });
     }

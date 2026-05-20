@@ -12,12 +12,11 @@ async function authenticateWithSA() {
   }
 
   const keyJson = JSON.parse(Buffer.from(saBase64, 'base64').toString('utf-8'));
-  const auth = new google.auth.JWT(
-    keyJson.client_email,
-    null,
-    keyJson.private_key,
-    SCOPES,
-  );
+  const auth = new google.auth.JWT({
+    email: keyJson.client_email,
+    key: keyJson.private_key,
+    scopes: SCOPES,
+  });
 
   return auth;
 }
