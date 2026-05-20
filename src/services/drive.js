@@ -24,12 +24,17 @@ async function authenticateWithSA() {
 async function authenticateWithOAuth() {
   const CREDENTIALS_PATH = 'credentials.json';
   const TOKEN_PATH = 'token.json';
+  let credentials;
 
-  if (!fs.existsSync(CREDENTIALS_PATH)) {
+  if (process.env.GOOGLE_OAUTH_CREDENTIALS) {
+    credentials = JSON.parse(Buffer.from(process.env.GOOGLE_OAUTH_CREDENTIALS, 'base64').toString('utf-8'));
+  } else if (fs.existsSync(CREDENTIALS_PATH)) {
+    credentials = JSON.parse(fs.readFileSync(CREDENTIALS_PATH, 'utf-8'));
+  } else {
     throw new Error(
-      `No se encontró el archivo "${CREDENTIALS_PATH}".\n` +
+      `No se encontró el archivo "${CREDENTIALS_PATH}" ni la variable GOOGLE_OAUTH_CREDENTIALS.\n` +
       `Por favor, descargá las credenciales OAuth2 desde Google Cloud Console\n` +
-      `y guardalas en la raíz del proyecto como "credentials.json".\n\n` +
+      `y guardalas en la raíz del proyecto como "credentials.json" o configurá la variable de entorno.\n\n` +
       `Instrucciones:\n` +
       `  1. Ir a https://console.cloud.google.com\n` +
       `  2. Habilitar la Google Drive API\n` +
@@ -38,16 +43,25 @@ async function authenticateWithOAuth() {
     );
   }
 
-  const credentials = JSON.parse(fs.readFileSync(CREDENTIALS_PATH, 'utf-8'));
   const { client_secret, client_id, redirect_uris } = credentials.installed || credentials.web;
   const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
 
-  if (fs.existsSync(TOKEN_PATH)) {
-    const token = JSON.parse(fs.readFileSync(TOKEN_PATH, 'utf-8'));
+  let token;
+  if (process.env.GOOGLE_OAUTH_TOKEN) {
+    token = JSON.parse(Buffer.from(process.env.GOOGLE_OAUTH_TOKEN, 'base64').toString('utf-8'));
+  } else if (fs.existsSync(TOKEN_PATH)) {
+    token = JSON.parse(fs.readFileSync(TOKEN_PATH, 'utf-8'));
+  }
+
+  if (token) {
     oAuth2Client.setCredentials(token);
     oAuth2Client.on('tokens', (newTokens) => {
       const updated = { ...token, ...newTokens };
-      fs.writeFileSync(TOKEN_PATH, JSON.stringify(updated, null, 2));
+      if (!process.env.GOOGLE_OAUTH_TOKEN || fs.existsSync(TOKEN_PATH)) {
+        fs.writeFileSync(TOKEN_PATH, JSON.stringify(updated, null, 2));
+      } else {
+        console.log('⚠️ [OAuth] Token renovado en memoria.');
+      }
     });
     return oAuth2Client;
   }
@@ -126,12 +140,19 @@ async function getOrCreateFolder(drive, folderName) {
     if (userFolder) return userFolder.id;
   }
 
-  throw new Error(
-    `No se encontró la carpeta "${folderName}" compartida con el Service Account.\n\n` +
-    `1. Creá una carpeta llamada "${folderName}" en tu Drive personal\n` +
-    `2. Compartila con el email del Service Account como Editor\n` +
-    `3. Opcional: pasá el ID de la carpeta como variable DRIVE_FOLDER_ID en Render`
-  );
+  // Si no se encontró, la creamos (con OAuth tenemos cuota para hacerlo)
+  console.log(`Carpeta "${folderName}" no encontrada. Creándola...`);
+  const createRes = await drive.files.create({
+    requestBody: {
+      name: folderName,
+      mimeType: 'application/vnd.google-apps.folder',
+    },
+    fields: 'id',
+    supportsAllDrives: true,
+  });
+
+  console.log(`✅ Carpeta creada exitosamente con ID: ${createRes.data.id}`);
+  return createRes.data.id;
 }
 
 /**
