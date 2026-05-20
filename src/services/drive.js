@@ -96,18 +96,20 @@ function authorizeFirstTime(oAuth2Client) {
  * @returns {string} folderId
  */
 async function getOrCreateFolder(drive, folderName) {
-  // Buscar si ya existe
+  // Buscar en el Drive del SA y en carpetas compartidas
   const res = await drive.files.list({
     q: `name='${folderName}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
     fields: 'files(id, name)',
-    spaces: 'drive',
+    corpora: 'allDrives',
+    includeItemsFromAllDrives: true,
+    supportsAllDrives: true,
   });
 
   if (res.data.files.length > 0) {
     return res.data.files[0].id;
   }
 
-  // No existe → crearla
+  // No existe → crearla en el Drive del SA
   const folder = await drive.files.create({
     requestBody: {
       name: folderName,
@@ -134,6 +136,9 @@ async function uploadFileToDrive(drive, localPath, folderId) {
   const existingRes = await drive.files.list({
     q: `name='${fileName}' and '${folderId}' in parents and trashed=false`,
     fields: 'files(id, name)',
+    corpora: 'allDrives',
+    includeItemsFromAllDrives: true,
+    supportsAllDrives: true,
   });
 
   let fileId;
@@ -147,6 +152,7 @@ async function uploadFileToDrive(drive, localPath, folderId) {
         mimeType: 'text/markdown',
         body: fileStream,
       },
+      supportsAllDrives: true,
     });
   } else {
     // Crear archivo nuevo
@@ -160,6 +166,7 @@ async function uploadFileToDrive(drive, localPath, folderId) {
         body: fileStream,
       },
       fields: 'id',
+      supportsAllDrives: true,
     });
     fileId = createRes.data.id;
   }
