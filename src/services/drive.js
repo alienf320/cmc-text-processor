@@ -96,23 +96,41 @@ function authorizeFirstTime(oAuth2Client) {
  * @returns {string} folderId
  */
 async function getOrCreateFolder(drive, folderName) {
+  // Si el usuario especificó un ID de carpeta, usarlo directamente
+  const explicitId = process.env.DRIVE_FOLDER_ID;
+  if (explicitId) {
+    return explicitId;
+  }
+
   // Buscar en todas partes (My Drive, Shared Drive, compartidos con el SA)
   const res = await drive.files.list({
     q: `name='${folderName}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
-    fields: 'files(id, name)',
+    fields: 'files(id, name, owners)',
     corpora: 'allDrives',
     includeItemsFromAllDrives: true,
     supportsAllDrives: true,
   });
 
+  // Filtrar: NO queremos carpetas cuyo owner sea el SA (no tienen quota)
+  // Queremos carpetas compartidas con el SA por el usuario
   if (res.data.files.length > 0) {
-    return res.data.files[0].id;
+    // Tomar la primera carpeta que NO sea dueño el SA
+    const saEmail = process.env.GOOGLE_DRIVE_SERVICE_ACCOUNT
+      ? JSON.parse(
+          Buffer.from(process.env.GOOGLE_DRIVE_SERVICE_ACCOUNT, 'base64').toString('utf-8')
+        ).client_email
+      : null;
+    const userFolder = res.data.files.find(
+      f => !saEmail || !f.owners?.some(o => o.emailAddress === saEmail)
+    );
+    if (userFolder) return userFolder.id;
   }
 
   throw new Error(
-    `No se encontró la carpeta "${folderName}" en Google Drive.\n\n` +
-    `Creá una carpeta llamada "${folderName}" en tu Drive, compartila con ` +
-    `el email de la Service Account como Editor, y volvé a intentar.`
+    `No se encontró la carpeta "${folderName}" compartida con el Service Account.\n\n` +
+    `1. Creá una carpeta llamada "${folderName}" en tu Drive personal\n` +
+    `2. Compartila con el email del Service Account como Editor\n` +
+    `3. Opcional: pasá el ID de la carpeta como variable DRIVE_FOLDER_ID en Render`
   );
 }
 

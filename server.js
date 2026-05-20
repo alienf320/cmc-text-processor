@@ -73,24 +73,26 @@ app.get('/api/drive-test', async (req, res) => {
 
     const drive = google.drive({ version: 'v3', auth });
     const folderName = process.env.DRIVE_FOLDER_NAME || 'yt-transcriber';
+    const saEmail = keyJson.client_email;
 
-    // Test 1: Search for folder in all accessible drives
+    // Search for the folder in all accessible drives
     const searchAll = await drive.files.list({
       q: `name='${folderName}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
-      fields: 'files(id, name, owners, shared)',
+      fields: 'files(id, name, owners, shared, permissions)',
       corpora: 'allDrives',
       includeItemsFromAllDrives: true,
       supportsAllDrives: true,
     });
 
-    // Test 2: Search only in 'user' context (SA's own Drive + shared with me)
-    const searchUser = await drive.files.list({
-      q: `name='${folderName}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
-      fields: 'files(id, name, owners, shared)',
-      spaces: 'drive',
-    });
+    // Filter: user's shared folder (not owned by SA)
+    const userFolder = searchAll.data.files.find(f =>
+      !f.owners?.some(o => o.emailAddress === saEmail)
+    );
+    const saFolder = searchAll.data.files.find(f =>
+      f.owners?.some(o => o.emailAddress === saEmail)
+    );
 
-    // Test 3: List all folders the SA has access to (limit 10)
+    // Show all accessible folders for debugging
     const allFolders = await drive.files.list({
       q: `mimeType='application/vnd.google-apps.folder' and trashed=false`,
       fields: 'files(id, name, owners, shared)',
@@ -101,17 +103,31 @@ app.get('/api/drive-test', async (req, res) => {
       orderBy: 'name',
     });
 
-    // Test 4: Check about/quota
+    // Quota info
     const about = await drive.about.get({ fields: 'storageQuota, user' });
 
     res.json({
-      sa_email: keyJson.client_email,
+      sa_email: saEmail,
       folder_name: folderName,
-      search_all_drives: searchAll.data.files.map(f => ({ id: f.id, name: f.name, shared: f.shared, owners: f.owners?.map(o => o.emailAddress) })),
-      search_user_drive: searchUser.data.files.map(f => ({ id: f.id, name: f.name, shared: f.shared })),
-      all_folders_preview: allFolders.data.files.map(f => ({ id: f.id, name: f.name, shared: f.shared, owners: f.owners?.map(o => o.emailAddress) })),
+      user_folder: userFolder ? {
+        id: userFolder.id,
+        name: userFolder.name,
+        shared: userFolder.shared,
+        owners: userFolder.owners?.map(o => o.emailAddress),
+      } : null,
+      sa_owned_folder: saFolder ? {
+        id: saFolder.id,
+        name: saFolder.name,
+        shared: saFolder.shared,
+      } : null,
+      all_folder_names: allFolders.data.files.map(f => ({
+        id: f.id, name: f.name, owner: f.owners?.[0]?.emailAddress,
+      })),
       quota: about.data.storageQuota,
-      user: about.data.user,
+      sa_user: about.data.user?.emailAddress,
+      tip: userFolder
+        ? `✅ Usá DRIVE_FOLDER_ID=${userFolder.id} en Render para evitar la búsqueda`
+        : '❌ No se encontró la carpeta compartida desde tu Drive personal. Creala, compartila con el SA como Editor, y reintentá.',
     });
   } catch (e) {
     res.json({ step: 'error', ok: false, error: e.message, stack: e.stack?.substring(0, 500) });
