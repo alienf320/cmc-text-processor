@@ -280,3 +280,50 @@ export async function downloadFromDrive(fileId, fileName) {
       .on('error', reject);
   });
 }
+
+/**
+ * Lista los archivos disponibles en la carpeta de salida en Drive.
+ */
+export async function listDriveOutputFiles() {
+  const folderName = process.env.DRIVE_FOLDER_NAME || 'yt-transcriber';
+  const auth = await authenticate();
+  const drive = google.drive({ version: 'v3', auth });
+  const folderId = await getOrCreateFolder(drive, folderName);
+
+  const res = await drive.files.list({
+    q: `'${folderId}' in parents and trashed=false and name contains '.md'`,
+    fields: 'files(id, name)',
+    spaces: 'drive',
+    orderBy: 'createdTime desc',
+  });
+
+  return res.data.files.map(f => f.name);
+}
+
+/**
+ * Obtiene el contenido de un archivo desde la carpeta de salida en Drive por su nombre.
+ */
+export async function getDriveOutputFileContent(fileName) {
+  const folderName = process.env.DRIVE_FOLDER_NAME || 'yt-transcriber';
+  const auth = await authenticate();
+  const drive = google.drive({ version: 'v3', auth });
+  const folderId = await getOrCreateFolder(drive, folderName);
+
+  const searchRes = await drive.files.list({
+    q: `name='${fileName}' and '${folderId}' in parents and trashed=false`,
+    fields: 'files(id, name)',
+    spaces: 'drive',
+  });
+
+  if (searchRes.data.files.length === 0) {
+    throw new Error('Archivo no encontrado en Drive');
+  }
+
+  const fileId = searchRes.data.files[0].id;
+  const res = await drive.files.get(
+    { fileId, alt: 'media' },
+    { responseType: 'text' }
+  );
+
+  return res.data;
+}

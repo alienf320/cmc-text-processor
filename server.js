@@ -9,6 +9,7 @@ import { processText } from './src/modules/processText.js';
 import { downloadTranscript } from './src/modules/youtube.js';
 import { generateWithRetry } from './src/services/ai.js';
 import { readFile, writeFile, listFiles } from './src/utils/fileUtils.js';
+import { listDriveOutputFiles, getDriveOutputFileContent } from './src/services/drive.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUTPUT_FOLDER = 'Resultados';
@@ -312,7 +313,13 @@ app.post('/api/analyze', async (req, res) => {
 
 app.get('/api/results', async (req, res) => {
   try {
-    const files = await listFiles(OUTPUT_FOLDER, ['.md']);
+    let files = [];
+    try {
+      files = await listDriveOutputFiles();
+    } catch (e) {
+      console.warn("No se pudo obtener de Drive, usando local:", e.message);
+      files = await listFiles(OUTPUT_FOLDER, ['.md']);
+    }
     res.json({ files });
   } catch (error) {
     console.error('Error listing results:', error);
@@ -323,8 +330,14 @@ app.get('/api/results', async (req, res) => {
 app.get('/api/results/:filename', async (req, res) => {
   try {
     const safeName = path.basename(req.params.filename);
-    const filePath = path.join(OUTPUT_FOLDER, safeName);
-    const content = await readFile(filePath);
+    let content;
+    try {
+      content = await getDriveOutputFileContent(safeName);
+    } catch (e) {
+      console.warn("No se pudo obtener de Drive, buscando local:", e.message);
+      const filePath = path.join(OUTPUT_FOLDER, safeName);
+      content = await readFile(filePath);
+    }
     res.json({
       success: true,
       fileName: safeName,
