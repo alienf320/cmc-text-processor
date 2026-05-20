@@ -70,14 +70,9 @@ async function authenticateWithOAuth() {
 }
 
 async function authenticate() {
-  try {
-    return await authenticateWithSA();
-  } catch (error) {
-    if (error.message === 'SERVICE_ACCOUNT_MISSING') {
-      return await authenticateWithOAuth();
-    }
-    throw error;
-  }
+  // Ignoramos la Service Account (authenticateWithSA) porque no tiene cuota de almacenamiento.
+  // Forzamos el uso de OAuth que utiliza la cuota del usuario.
+  return await authenticateWithOAuth();
 }
 
 function authorizeFirstTime(oAuth2Client) {

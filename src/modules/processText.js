@@ -147,6 +147,7 @@ export async function processText(promptKey, lang, inputFile, outputFile, extraP
       }
       await writeFile(outputFile, merged.trim());
       console.log(`¡Completado! Se procesaron ${totalChunks} partes. Archivo final: "${outputFile}"`);
+      await uploadToDrive(outputFile);
     }
   } catch (error) {
     console.error('Error detallado:', error.message);
