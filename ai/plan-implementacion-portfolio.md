@@ -136,10 +136,10 @@ Los adaptadores pueden depender de SDKs externos. El dominio y los casos de uso 
 
 **Prioridad:** crítica
 
-- [ ] Revisar `git status` y todos los archivos tracked.
+- [x] Revisar `git status` y todos los archivos tracked.
 - [ ] Confirmar que `.env`, `credentials.json`, `token.json` y claves de Google nunca fueron commiteados.
 - [ ] Revisar el historial de Git por posibles secretos.
-- [ ] Agregar `.env.example` con nombres de variables, valores ficticios y comentarios.
+- [x] Agregar `.env.example` con nombres de variables, valores ficticios y comentarios.
 - [ ] Documentar las variables necesarias para desarrollo y deploy.
 - [ ] Revisar `renew_token.cjs` y decidir si se versiona, se documenta o se elimina.
 - [ ] Confirmar que las carpetas con entradas y resultados personales no se publiquen.
