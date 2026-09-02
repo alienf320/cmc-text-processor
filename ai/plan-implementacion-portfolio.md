@@ -8,7 +8,8 @@ Preparar `yt-transcriber` para su publicación en GitHub como proyecto de portfo
 
 - Fase 0: auditor?a de publicaci?n avanzada; queda una revisi?n manual final antes de publicar.
 - Fase 1: README, gu?a de uso, arquitectura y configuraci?n documentados; faltan demo, capturas, ejemplos y badges verificados.
-- Fase 2 en adelante: pendientes.
+- Fase 3.1: contrato `TextGenerator` y adaptador Gemini implementados; falta integrar factories y desacoplar almacenamiento/transcripciones.
+- Fase 2 y el resto de Fase 3 en adelante: pendientes.
 
 ## Resultado esperado
 
@@ -140,10 +141,10 @@ Los adaptadores pueden depender de SDKs externos. El dominio y los casos de uso 
 
 **Fase 3.1 ? Contrato de generaci?n de texto y adaptador Gemini**
 
-- [ ] Definir el contrato m?nimo `TextGenerator` sin acoplarlo al SDK de Gemini.
-- [ ] Encapsular la integraci?n actual de Gemini detr?s del adaptador.
-- [ ] Mantener el contrato de salida actual para no romper CLI ni API.
-- [ ] Verificar el adaptador con un smoke test local sin llamar a la API real.
+- [x] Definir el contrato m?nimo `TextGenerator` sin acoplarlo al SDK de Gemini.
+- [x] Encapsular la integraci?n actual de Gemini detr?s del adaptador.
+- [x] Mantener el contrato de salida actual para no romper CLI ni API.
+- [x] Verificar el adaptador con un smoke test local sin llamar a la API real.
 
 ## Fases
 
