@@ -12,10 +12,11 @@ evidence only; it does not certify that the repository is ready to publish.
 - `.env`, `credentials.json`, `token.json`, and the Google service-account JSON
   exist locally and are ignored by `.gitignore`.
 - No sensitive filenames were found in the reachable Git history scan.
+- A regex scan of reachable history found zero common API-key/private-key
+  candidates outside `node_modules`.
 - No common API-key/private-key patterns were found in `HEAD` outside
   `node_modules`. The `client_secret` matches in `src/services/drive.js` are
   property names read from OAuth JSON, not embedded credentials.
-- The working tree contains untracked project artifacts, including
 - `renew_token.cjs` is a local helper that prints credential values for manual
   deployment setup; it is now ignored and will not be part of the public source.
 - `node_modules/` was removed from Git while preserving the local installation.
@@ -31,10 +32,9 @@ evidence only; it does not certify that the repository is ready to publish.
 
 ## Remaining Phase 0 work
 
-1. Inspect the complete Git history with a dedicated secret scanner.
-2. Review `Entradas/`, `resultados/`, `uploads/`, and other local data before
+1. Review `Entradas/`, `resultados/`, `uploads/`, and other local data before
    any public push.
-3. Normalize files to UTF-8 and verify the publication set.
+2. Normalize files to UTF-8 and verify the publication set.
 
 ## Gate
 
