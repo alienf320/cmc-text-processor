@@ -12,6 +12,10 @@ Preparar `yt-transcriber` para su publicación en GitHub como proyecto de portfo
 - Fase 3.1: contrato, configuraci?n, factory y adaptadores Gemini/OpenAI/Groq implementados; faltan tests permanentes y desacoplamiento de casos de uso.
 - Fase 2 y el resto de Fase 3 en adelante: pendientes.
 
+## Regla de seguimiento del plan
+
+El plan se actualiza en dos momentos: antes de iniciar cada work unit para registrar el alcance y despu?s de concluirla para marcar resultados verificables. Tambi?n se actualiza cuando una auditor?a descubre un riesgo, corrige una suposici?n o cambia el orden recomendado.
+
 ## Resultado esperado
 
 Un recruiter debería poder, en pocos minutos:
