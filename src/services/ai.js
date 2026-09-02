@@ -1,7 +1,7 @@
-import { GeminiTextGenerator } from '../adapters/ai/geminiTextGenerator.js';
+import { createTextGenerator } from '../adapters/ai/textGeneratorFactory.js';
 
 // Compatibility facade for the current CLI and API consumers.
-const textGenerator = new GeminiTextGenerator();
+const textGenerator = createTextGenerator();
 
 export function generateWithRetry(systemPrompt, userPrompt, maxRetries = 3) {
   return textGenerator.generate(systemPrompt, userPrompt, maxRetries);

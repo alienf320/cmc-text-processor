@@ -12,9 +12,9 @@ function isHighDemandError(error) {
  * Gemini implementation of the TextGenerator port.
  */
 export class GeminiTextGenerator {
-  constructor({ apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY, models = DEFAULT_MODELS } = {}) {
+  constructor({ apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY, model, models } = {}) {
     this.provider = createGoogleGenerativeAI({ apiKey });
-    this.models = models;
+    this.models = models || [model, ...DEFAULT_MODELS.filter(candidate => candidate !== model)].filter(Boolean);
   }
 
   async generate(systemPrompt, userPrompt, maxRetries = 3) {

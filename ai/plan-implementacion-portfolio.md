@@ -9,7 +9,7 @@ Preparar `yt-transcriber` para su publicación en GitHub como proyecto de portfo
 - Fase 0: c?digo actual saneado, pero bloqueada hasta revocar las claves expuestas y resolver las 4 coincidencias hist?ricas detectadas.
 - Fase 1: incompleta; faltan capturas/GIF, demo, ejemplos y badges verificados.
 - Fase 2: inventario y normalizaci?n de nombres avanzados; la revisi?n de legacy qued? interrumpida por el hallazgo de seguridad.
-- Fase 3.1: contrato y adaptador Gemini existentes; la selecci?n configurable de proveedores queda como pr?ximo dise?o t?cnico.
+- Fase 3.1: contrato Gemini, configuraci?n validada y factory implementados; OpenAI/Groq todav?a requieren adaptadores.
 - Fase 2 y el resto de Fase 3 en adelante: pendientes.
 
 ## Resultado esperado
@@ -142,11 +142,11 @@ Los adaptadores pueden depender de SDKs externos. El dominio y los casos de uso 
 
 **Configuraci?n validada y factory de `TextGenerator`**
 
-- [ ] Definir valores permitidos y defaults no secretos para `AI_PROVIDER` y `AI_MODEL`.
-- [ ] Validar al iniciar la credencial requerida por el proveedor seleccionado.
-- [ ] Crear una factory centralizada que construya el adaptador configurado.
-- [ ] Mantener el facade actual compatible con CLI/API.
-- [ ] Verificar proveedores inv?lidos o credenciales faltantes con tests/smoke tests sin secretos.
+- [x] Definir valores permitidos y defaults no secretos para `AI_PROVIDER` y `AI_MODEL`.
+- [x] Validar al iniciar la credencial requerida por el proveedor seleccionado.
+- [x] Crear una factory centralizada que construya el adaptador configurado.
+- [x] Mantener el facade actual compatible con CLI/API.
+- [x] Verificar proveedores inv?lidos o credenciales faltantes con tests/smoke tests sin secretos.
 
 ## Fases
 
