@@ -6,7 +6,7 @@ Preparar `yt-transcriber` para su publicación en GitHub como proyecto de portfo
 
 ## Progreso actual
 
-- Fase 0: bloqueada; se detectaron claves Groq hardcodeadas en scripts legacy y hay que revocarlas, eliminarlas del c?digo y revisar el historial.
+- Fase 0: c?digo actual saneado, pero bloqueada hasta revocar las claves expuestas y resolver las 4 coincidencias hist?ricas detectadas.
 - Fase 1: incompleta; faltan capturas/GIF, demo, ejemplos y badges verificados.
 - Fase 2: inventario y normalizaci?n de nombres avanzados; la revisi?n de legacy qued? interrumpida por el hallazgo de seguridad.
 - Fase 3.1: adelantada de forma excepcional; queda en pausa hasta concluir Fase 1 y Fase 2.
@@ -144,11 +144,11 @@ Los adaptadores pueden depender de SDKs externos. El dominio y los casos de uso 
 
 Se elige retirar `index.js` y `index - groq.js` porque no son comandos soportados, contienen claves hardcodeadas y su funcionalidad no forma parte del flujo actual. La rotaci?n/revocaci?n de las claves debe realizarse fuera del repositorio por el propietario de las credenciales.
 
-- [ ] Retirar del ?rbol trackeado los scripts legacy con credenciales.
-- [ ] Ejecutar un escaneo hist?rico con patrones `gsk_` y documentar el resultado.
+- [x] Retirar del ?rbol trackeado los scripts legacy con credenciales.
+- [x] Ejecutar un escaneo hist?rico con patrones `gsk_` y documentar el resultado.
 - [ ] Revocar o rotar las claves expuestas en el proveedor.
 - [ ] Determinar si el historial remoto requiere reescritura antes de publicar.
-- [ ] Verificar que no queden credenciales en los archivos actuales.
+- [x] Verificar que no queden credenciales en los archivos actuales.
 
 ## Fases
 

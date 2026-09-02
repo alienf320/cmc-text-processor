@@ -13,7 +13,8 @@ evidence only; it does not certify that the repository is ready to publish.
   exist locally and are ignored by `.gitignore`.
 - No sensitive filenames were found in the reachable Git history scan.
 - A regex scan of reachable history found zero common API-key/private-key
-  candidates outside `node_modules`.
+  candidates outside `node_modules` for the original pattern set.
+- The initial provider-specific history scan found four `gsk_` matches in reachable history. The current `HEAD` is clean after removing the legacy scripts, but history and provider-side key rotation remain unresolved.
 - No common API-key/private-key patterns were found in `HEAD` outside
   `node_modules`. The `client_secret` matches in `src/services/drive.js` are
   property names read from OAuth JSON, not embedded credentials.
