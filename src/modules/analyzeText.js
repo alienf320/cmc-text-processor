@@ -1,7 +1,7 @@
 import { generateWithRetry } from '../services/ai.js';
 import { readFile, writeFile, listFiles } from '../utils/fileUtils.js';
 
-const OUTPUT_FOLDER = 'Resultados';
+const OUTPUT_FOLDER = 'resultados';
 const ANALYSIS_SYSTEM_PROMPT = 'Eres un asistente experto en análisis de textos. Responde las preguntas del usuario basándote en el texto proporcionado. Sé detallado y preciso en tus respuestas.';
 
 function stripMetadata(text) {

@@ -8,7 +8,7 @@ import { downloadTranscript } from './modules/youtube.js';
 import { listDriveInputFiles, downloadFromDrive } from './services/drive.js';
 
 const INPUT_FOLDER = 'Entradas';
-const OUTPUT_FOLDER = 'Resultados';
+const OUTPUT_FOLDER = 'resultados';
 
 function askQuestion(rl, question) {
   return new Promise((resolve) => {

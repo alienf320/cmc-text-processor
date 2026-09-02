@@ -3,7 +3,7 @@ import { generateWithRetry, buildSystemPrompt } from '../services/ai.js';
 import { readFile, writeFile } from '../utils/fileUtils.js';
 import { uploadToDrive } from '../services/drive.js';
 
-const OUTPUT_FOLDER = 'Resultados';
+const OUTPUT_FOLDER = 'resultados';
 
 function chunkText(text, maxLength = 20000) {
   if (!text || text.length <= maxLength) return [text];

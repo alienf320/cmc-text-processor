@@ -12,7 +12,7 @@ import { readFile, writeFile, listFiles } from './src/utils/fileUtils.js';
 import { listDriveOutputFiles, getDriveOutputFileContent } from './src/services/drive.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const OUTPUT_FOLDER = 'Resultados';
+const OUTPUT_FOLDER = 'resultados';
 const INPUT_FOLDER = 'Entradas';
 
 const app = express();

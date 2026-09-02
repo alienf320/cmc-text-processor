@@ -62,7 +62,7 @@ La API Key se obtiene desde [Google AI Studio](https://aistudio.google.com/app/a
 
 ### Google Drive (opcional)
 
-La aplicación intenta guardar y leer los resultados desde Google Drive. Si Drive no está disponible, conserva el resultado localmente en `Resultados/`.
+La aplicación intenta guardar y leer los resultados desde Google Drive. Si Drive no está disponible, conserva el resultado localmente en `resultados/`.
 
 Para habilitar Drive:
 
@@ -154,7 +154,7 @@ Menú principal:
 2. **Analizar / Hacer preguntas**: consultar un texto o PDF.
 3. **Descargar y procesar transcripción de YouTube**: pegar la URL, elegir tipo, idioma y nombre de salida.
 
-Los archivos locales se buscan en `Entradas/` y los resultados se escriben en `Resultados/`. El CLI también puede sincronizar resultados con la carpeta configurada de Google Drive.
+Los archivos locales se buscan en `Entradas/` y los resultados se escriben en `resultados/`. El CLI también puede sincronizar resultados con la carpeta configurada de Google Drive.
 
 ## Comprobar que el servidor funciona
 
@@ -186,7 +186,7 @@ Este diagnóstico informa si faltan credenciales, si la autorización falla o qu
 | La página no carga en el puerto 3000 | Ejecutar `npm run build` dentro de `electron-angular-test` y volver a iniciar `npm start`. |
 | Video sin transcripción | Verificar que el video tenga subtítulos accesibles y probar otra URL. |
 | Error de Google Drive | Confirmar que `credentials.json`/`token.json` sean válidos y revisar `/api/drive-test`. |
-| No aparecen resultados | Presionar **Refrescar**; si Drive falla, revisar la carpeta local `Resultados/`. |
+| No aparecen resultados | Presionar **Refrescar**; si Drive falla, revisar la carpeta local `resultados/`. |
 | Respuesta inesperada | Revisar el tipo de contenido, idioma y que el texto de entrada sea legible. |
 
 ## Estructura de carpetas relevante
