@@ -140,15 +140,12 @@ Los adaptadores pueden depender de SDKs externos. El dominio y los casos de uso 
 
 ## Pr?ximo bloque de implementaci?n
 
-**Fase 2 ? Inventario y limpieza estructural m?nima**
+**Fase 2 ? Clasificaci?n de legacy y archivos de contenido**
 
-Se posponen temporalmente las tareas visuales restantes de Fase 1 porque requieren una demo reproducible y material gr?fico real; avanzar con la estructura del repositorio reduce riesgo y facilita esa demo.
-
-- [x] Inventariar archivos legacy, scripts experimentales y documentaci?n vigente.
-- [x] Verificar inconsistencias de nombres entre `Resultados/` y `resultados/`.
-- [x] Decidir si `electron-angular-test/` se renombra o se mantiene, considerando el workflow de deploy.
-- [x] Documentar una estructura p?blica clara sin mover archivos todav?a.
-- [x] Registrar la decisi?n y el alcance antes de aplicar cambios estructurales.
+- [ ] Revisar el prop?sito y las dependencias de los scripts legacy del root.
+- [ ] Revisar `resultado.md` y `video.txt` para decidir si son ejemplos p?blicos o datos personales.
+- [ ] Confirmar que los scripts experimentales no est?n incluidos en los comandos soportados.
+- [ ] Registrar la decisi?n de publicaci?n por archivo sin borrar contenido autom?ticamente.
 
 ## Fases
 
