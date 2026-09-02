@@ -22,6 +22,7 @@ evidence only; it does not certify that the repository is ready to publish.
 - `node_modules/` was removed from Git while preserving the local installation.
 - The root test command is still a failing placeholder, as recorded in the
   implementation plan.
+- Five project Markdown files were successfully read as UTF-8.
 
 ## Started work
 
@@ -32,9 +33,9 @@ evidence only; it does not certify that the repository is ready to publish.
 
 ## Remaining Phase 0 work
 
-1. Review `Entradas/`, `resultados/`, `uploads/`, and other local data before
-   any public push.
-2. Normalize files to UTF-8 and verify the publication set.
+1. Perform a final manual review of local data immediately before any public
+   push.
+2. Confirm the intended publication set and remote repository settings.
 
 ## Gate
 
