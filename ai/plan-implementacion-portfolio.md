@@ -9,7 +9,7 @@ Preparar `yt-transcriber` para su publicación en GitHub como proyecto de portfo
 - Fase 0: c?digo actual saneado, pero bloqueada hasta revocar las claves expuestas y resolver las 4 coincidencias hist?ricas detectadas.
 - Fase 1: incompleta; faltan capturas/GIF, demo, ejemplos y badges verificados.
 - Fase 2: inventario y normalizaci?n de nombres avanzados; la revisi?n de legacy qued? interrumpida por el hallazgo de seguridad.
-- Fase 3.1: adelantada de forma excepcional; queda en pausa hasta concluir Fase 1 y Fase 2.
+- Fase 3.1: contrato y adaptador Gemini existentes; la selecci?n configurable de proveedores queda como pr?ximo dise?o t?cnico.
 - Fase 2 y el resto de Fase 3 en adelante: pendientes.
 
 ## Resultado esperado
@@ -140,15 +140,16 @@ Los adaptadores pueden depender de SDKs externos. El dominio y los casos de uso 
 
 ## Pr?ximo bloque de implementaci?n
 
-**Correcci?n de Fase 0 ? Retiro de scripts legacy con credenciales**
+**Dise?o e implementaci?n de selecci?n configurable de proveedores de IA**
 
-Se elige retirar `index.js` y `index - groq.js` porque no son comandos soportados, contienen claves hardcodeadas y su funcionalidad no forma parte del flujo actual. La rotaci?n/revocaci?n de las claves debe realizarse fuera del repositorio por el propietario de las credenciales.
+La remediaci?n de credenciales y la nueva configuraci?n de proveedores se mantienen como prioridades. Los scripts legacy retirados no se restaurar?n: el soporte Groq/OpenAI/Gemini vivir? en adaptadores del flujo actual.
 
-- [x] Retirar del ?rbol trackeado los scripts legacy con credenciales.
-- [x] Ejecutar un escaneo hist?rico con patrones `gsk_` y documentar el resultado.
-- [ ] Revocar o rotar las claves expuestas en el proveedor.
-- [ ] Determinar si el historial remoto requiere reescritura antes de publicar.
-- [x] Verificar que no queden credenciales en los archivos actuales.
+- [ ] Definir configuraci?n validada para `AI_PROVIDER`, `AI_MODEL` y claves por proveedor.
+- [ ] Crear una factory de `TextGenerator` sin condicionales dispersos en casos de uso o rutas.
+- [ ] Implementar adaptadores Gemini, OpenAI y Groq con el contrato com?n.
+- [ ] Eliminar cualquier clave hardcodeada y evitar secretos por defecto.
+- [ ] Agregar tests con fake generator y errores de configuraci?n.
+- [ ] Documentar c?mo cambiar de proveedor editando ?nicamente `.env`.
 
 ## Fases
 
