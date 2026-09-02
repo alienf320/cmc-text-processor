@@ -140,16 +140,13 @@ Los adaptadores pueden depender de SDKs externos. El dominio y los casos de uso 
 
 ## Pr?ximo bloque de implementaci?n
 
-**Dise?o e implementaci?n de selecci?n configurable de proveedores de IA**
+**Configuraci?n validada y factory de `TextGenerator`**
 
-La remediaci?n de credenciales y la nueva configuraci?n de proveedores se mantienen como prioridades. Los scripts legacy retirados no se restaurar?n: el soporte Groq/OpenAI/Gemini vivir? en adaptadores del flujo actual.
-
-- [ ] Definir configuraci?n validada para `AI_PROVIDER`, `AI_MODEL` y claves por proveedor.
-- [ ] Crear una factory de `TextGenerator` sin condicionales dispersos en casos de uso o rutas.
-- [ ] Implementar adaptadores Gemini, OpenAI y Groq con el contrato com?n.
-- [ ] Eliminar cualquier clave hardcodeada y evitar secretos por defecto.
-- [ ] Agregar tests con fake generator y errores de configuraci?n.
-- [ ] Documentar c?mo cambiar de proveedor editando ?nicamente `.env`.
+- [ ] Definir valores permitidos y defaults no secretos para `AI_PROVIDER` y `AI_MODEL`.
+- [ ] Validar al iniciar la credencial requerida por el proveedor seleccionado.
+- [ ] Crear una factory centralizada que construya el adaptador configurado.
+- [ ] Mantener el facade actual compatible con CLI/API.
+- [ ] Verificar proveedores inv?lidos o credenciales faltantes con tests/smoke tests sin secretos.
 
 ## Fases
 
