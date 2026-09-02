@@ -8,6 +8,7 @@ Preparar `yt-transcriber` para su publicación en GitHub como proyecto de portfo
 
 - Fase 0: auditor?a de publicaci?n avanzada; queda una revisi?n manual final antes de publicar.
 - Fase 1: incompleta; faltan capturas/GIF, demo, ejemplos y badges verificados.
+- Fase 2: inventario, decisi?n de nombres y estructura p?blica documentados; quedan pendientes revisiones legacy adicionales.
 - Fase 3.1: adelantada de forma excepcional; queda en pausa hasta concluir Fase 1 y Fase 2.
 - Fase 2 y el resto de Fase 3 en adelante: pendientes.
 
@@ -143,11 +144,11 @@ Los adaptadores pueden depender de SDKs externos. El dominio y los casos de uso 
 
 Se posponen temporalmente las tareas visuales restantes de Fase 1 porque requieren una demo reproducible y material gr?fico real; avanzar con la estructura del repositorio reduce riesgo y facilita esa demo.
 
-- [ ] Inventariar archivos legacy, scripts experimentales y documentaci?n vigente.
-- [ ] Verificar inconsistencias de nombres entre `Resultados/` y `resultados/`.
-- [ ] Decidir si `electron-angular-test/` se renombra o se mantiene, considerando el workflow de deploy.
-- [ ] Documentar una estructura p?blica clara sin mover archivos todav?a.
-- [ ] Registrar la decisi?n y el alcance antes de aplicar cambios estructurales.
+- [x] Inventariar archivos legacy, scripts experimentales y documentaci?n vigente.
+- [x] Verificar inconsistencias de nombres entre `Resultados/` y `resultados/`.
+- [x] Decidir si `electron-angular-test/` se renombra o se mantiene, considerando el workflow de deploy.
+- [x] Documentar una estructura p?blica clara sin mover archivos todav?a.
+- [x] Registrar la decisi?n y el alcance antes de aplicar cambios estructurales.
 
 ## Fases
 
