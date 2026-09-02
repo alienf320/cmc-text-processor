@@ -70,3 +70,5 @@ deprecated/
 .opencode/
 planning/
 uploads/
+# Add local SDD and assistant-generated metadata
+.atl/

@@ -1,81 +1,122 @@
-# yt-transcriber
+﻿# yt-transcriber
 
-Herramienta CLI para procesar transcripciones de video, textos teológicos y extractos de libros usando IA (Google Gemini). También permite analizar y hacer preguntas sobre textos ya procesados.
+> Convierte transcripciones, textos y extractos extensos en documentos Markdown organizados mediante IA, y permite consultar luego ese contenido con preguntas.
 
-## Características
+`yt-transcriber` es un proyecto full-stack orientado a automatizar la limpieza y estructuración de texto sin ocultar su origen ni eliminar contenido. Combina una API Node.js/Express, un cliente Angular y proveedores externos configurables.
 
-- **Procesar texto**: Transforma transcripciones crudas en documentos formateados con estructura Markdown, corrección de errores y traducción cuando es necesario.
-- **Análisis Q&A**: Haz preguntas sobre documentos ya procesados y obtén respuestas basadas en el contenido.
-- **Multilingüe**: Soporte para Español e Inglés.
-- **Tipos de contenido**: Transcripciones de video, textos teológicos/comentarios bíblicos, extractos de libros.
-- **Prompt extra**: Añade instrucciones personalizadas al procesar cualquier texto.
-- **Reintentos automáticos**: Si un modelo de IA está saturado, prueba automáticamente con otros modelos disponibles.
+## Qué demuestra
 
-## Requisitos
+- Integración con Google Gemini para procesamiento y análisis de texto.
+- Flujo YouTube → transcripción → API → documento Markdown.
+- Aplicación web Angular y CLI para distintos flujos de trabajo.
+- Persistencia local y sincronización opcional con Google Drive.
+- Separación progresiva hacia adaptadores reemplazables para IA, almacenamiento y transcripciones.
 
-- [Node.js](https://nodejs.org/) v18 o superior
-- Una [API Key de Google Gemini](https://aistudio.google.com/app/apikey)
+## Funcionalidades
 
-## Instalación
+- Procesar transcripciones de YouTube, archivos `.txt`, `.md` y `.pdf`.
+- Organizar párrafos, secciones, timestamps y metadata YAML.
+- Corregir errores de transcripción u OCR y traducir cuando corresponde.
+- Analizar documentos y hacer preguntas sobre su contenido.
+- Guardar resultados localmente o en Google Drive cuando está configurado.
 
-1. Clona o descarga este repositorio.
-2. Instala las dependencias:
-   ```bash
-   npm install
-   ```
-3. Crea un archivo `.env` en la raíz del proyecto con tu API Key:
-   ```env
-   GOOGLE_GENERATIVE_AI_API_KEY=tu_api_key_aqui
-   ```
+## Arquitectura actual
 
-## Uso
+```mermaid
+flowchart LR
+    U[Usuario] --> W[Angular web]
+    U --> C[CLI Node.js]
+    W -->|REST| A[Express API]
+    C --> A
+    W --> Y[Cloudflare Worker]
+    Y --> T[Transcripción YouTube]
+    A --> G[Google Gemini]
+    A --> L[Filesystem local]
+    A -. opcional .-> D[Google Drive]
+```
 
-### Iniciar la aplicación
+El objetivo arquitectónico documentado en [`ai/plan-implementacion-portfolio.md`](ai/plan-implementacion-portfolio.md) es reemplazar dependencias concretas mediante puertos y adaptadores, sin modificar los casos de uso al cambiar de proveedor.
+
+## Inicio rápido
+
+### Requisitos
+
+- Node.js 18 o superior.
+- Una API key de [Google Gemini](https://aistudio.google.com/app/apikey).
+- Node.js/npm para el frontend Angular.
+
+### Backend y CLI
 
 ```bash
+npm install
+Copy-Item .env.example .env
+# Editar .env y completar GOOGLE_GENERATIVE_AI_API_KEY
 npm start
-# o
-node src/index.js
 ```
 
-### Opción 1: Procesar texto
+La API queda disponible en `http://localhost:3000`. Para usar el CLI:
 
-1. **Selecciona el archivo de entrada**: Elige un archivo de la carpeta `Entradas/` o ingresa una ruta manualmente. Los archivos deben ser `.txt` o `.md`.
-2. **Selecciona el tipo de contenido**:
-   - **Transcripción de Video**: Organiza párrafos, añade secciones Markdown y timestamps.
-   - **Textos Teológicos / Comentarios Bíblicos**: Formato de ensayo, corrige citas bíblicas, mantiene todas las palabras intactas.
-   - **Extractos de Libros**: Corrige errores OCR, arregla párrafos, mantiene el contenido original.
-3. **Selecciona el idioma**: Español o Inglés.
-4. **Archivo de salida**: Acepta el nombre por defecto o escribe uno personalizado. Se guarda en `Resultados/`.
-5. **Prompt extra (opcional)**: Añade instrucciones específicas como "Analizar la doctrina del autor" o "Resaltar las citas bíblicas". Deja vacío para continuar.
-
-### Opción 2: Analizar / Hacer preguntas sobre un texto
-
-1. **Selecciona un archivo**: Elige un documento de la carpeta `Resultados/` o ingresa una ruta.
-2. **Haz tus preguntas**: Escribe una pregunta y la IA responderá basándose en el contenido del texto.
-3. **Continúa preguntando**: Responde `s` para hacer otra pregunta o `n` para terminar.
-4. **Guarda las Q&A**: Al finalizar, se genera un archivo `.md` con todas las preguntas y respuestas en `Resultados/`.
-
-## Estructura del proyecto
-
-```
-yt-transcriber/
-├── Entradas/              # Archivos de entrada (.txt, .md)
-├── Resultados/            # Archivos generados automáticamente
-├── deprecated/            # Scripts antiguos (no usar)
-├── src/                   # Código fuente
-│   ├── index.js           # Punto de entrada
-│   ├── config/            # Configuración y prompts
-│   ├── services/          # Servicios de IA (Gemini)
-│   ├── modules/           # Lógica de negocio (procesar, analizar)
-│   └── utils/             # Utilidades de archivos
-├── .env                   # Variables de entorno (API Key)
-├── package.json
-└── README.md
+```bash
+npm run cli
 ```
 
-## Notas
+### Frontend web
 
-- Los prompts están diseñados para **NO resumir** ni eliminar contenido. Solo formatean, corrigen errores y traducen si es necesario.
-- Los títulos (`##`) se añaden solo cuando el texto cambia claramente de tema o sección.
-- Los archivos de salida incluyen metadata YAML con tipo, idioma, fecha y fuente original.
+En otra terminal:
+
+```bash
+cd electron-angular-test
+npm install
+npm start
+```
+
+Abrir `http://localhost:4200`. Para que Express sirva una build del frontend:
+
+```bash
+npm run build
+cd ..
+npm start
+```
+
+La guía detallada de configuración, CLI, Google Drive y troubleshooting está en [`docs/INSTRUCTIVO.md`](docs/INSTRUCTIVO.md).
+
+## Configuración
+
+Usá [`.env.example`](.env.example) como referencia. La configuración actual mínima es:
+
+```env
+GOOGLE_GENERATIVE_AI_API_KEY=tu_api_key
+```
+
+Las credenciales `credentials.json`, `token.json`, `.env` y los datos locales están excluidos del repositorio. Nunca compartas esos archivos ni pegues sus valores en issues, capturas o commits.
+
+## Endpoints principales
+
+| Método | Ruta | Propósito |
+|---|---|---|
+| `GET` | `/api/health` | Verificar que la API está disponible. |
+| `POST` | `/api/process` | Procesar texto o archivo. |
+| `POST` | `/api/analyze` | Analizar un documento y responder preguntas. |
+| `GET` | `/api/drive-test` | Diagnosticar la integración opcional con Drive. |
+
+## Calidad y estado conocido
+
+El proyecto está en preparación para portfolio. El build Angular está configurado y la documentación de uso está disponible; el comando de tests raíz todavía es un placeholder y será reemplazado durante la Fase 4 del plan. No se presenta como un servicio de producción.
+
+Las limitaciones actuales incluyen dependencia de subtítulos accesibles para YouTube, consumo de una API externa de IA y configuración adicional para Google Drive.
+
+## Plan de implementación
+
+El trabajo se registra en [`ai/`](ai/):
+
+1. Seguridad y publicación.
+2. README y presentación.
+3. Limpieza estructural.
+4. Adaptadores reemplazables para IA, almacenamiento y transcripciones.
+5. Tests, lint y cobertura.
+6. CI/CD y reproducibilidad.
+7. Robustez, accesibilidad y demo.
+
+## Licencia
+
+Actualmente el proyecto conserva la licencia declarada en `package.json`. La licencia pública definitiva debe confirmarse antes de publicar el repositorio.
