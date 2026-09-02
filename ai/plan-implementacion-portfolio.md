@@ -140,15 +140,15 @@ Los adaptadores pueden depender de SDKs externos. El dominio y los casos de uso 
 
 ## Pr?ximo bloque de implementaci?n
 
-**Correcci?n de Fase 0 ? Remediaci?n de credenciales expuestas**
+**Correcci?n de Fase 0 ? Retiro de scripts legacy con credenciales**
 
-Se pospone la clasificaci?n/publicaci?n de legacy y cualquier nueva implementaci?n hasta resolver este hallazgo de seguridad.
+Se elige retirar `index.js` y `index - groq.js` porque no son comandos soportados, contienen claves hardcodeadas y su funcionalidad no forma parte del flujo actual. La rotaci?n/revocaci?n de las claves debe realizarse fuera del repositorio por el propietario de las credenciales.
 
-- [ ] Revocar o rotar las claves Groq expuestas.
-- [ ] Reemplazar las claves hardcodeadas en `index.js` y `index - groq.js` por variables de entorno o retirar los scripts legacy.
-- [ ] A?adir patrones `gsk_` al escaneo y revisar todo el historial.
-- [ ] Definir si se necesita reescritura del historial antes de publicar.
-- [ ] Verificar que no queden credenciales en archivos trackeados.
+- [ ] Retirar del ?rbol trackeado los scripts legacy con credenciales.
+- [ ] Ejecutar un escaneo hist?rico con patrones `gsk_` y documentar el resultado.
+- [ ] Revocar o rotar las claves expuestas en el proveedor.
+- [ ] Determinar si el historial remoto requiere reescritura antes de publicar.
+- [ ] Verificar que no queden credenciales en los archivos actuales.
 
 ## Fases
 
