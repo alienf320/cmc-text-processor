@@ -139,14 +139,15 @@ Los adaptadores pueden depender de SDKs externos. El dominio y los casos de uso 
 
 ## Pr?ximo bloque de implementaci?n
 
-**Fase 1 ? Cierre de README y presentaci?n**
+**Fase 2 ? Inventario y limpieza estructural m?nima**
 
-- [ ] Preparar capturas o un GIF del flujo principal sin datos sensibles.
-- [ ] Confirmar si existe una demo desplegada y documentarla solo si est? disponible.
-- [ ] Agregar ejemplos peque?os de entrada y salida.
-- [ ] Documentar decisiones t?cnicas y desaf?os reales.
-- [ ] Agregar badges ?nicamente para workflows verificados.
-- [ ] Verificar el criterio de aceptaci?n de la Fase 1.
+Se posponen temporalmente las tareas visuales restantes de Fase 1 porque requieren una demo reproducible y material gr?fico real; avanzar con la estructura del repositorio reduce riesgo y facilita esa demo.
+
+- [ ] Inventariar archivos legacy, scripts experimentales y documentaci?n vigente.
+- [ ] Verificar inconsistencias de nombres entre `Resultados/` y `resultados/`.
+- [ ] Decidir si `electron-angular-test/` se renombra o se mantiene, considerando el workflow de deploy.
+- [ ] Documentar una estructura p?blica clara sin mover archivos todav?a.
+- [ ] Registrar la decisi?n y el alcance antes de aplicar cambios estructurales.
 
 ## Fases
 
