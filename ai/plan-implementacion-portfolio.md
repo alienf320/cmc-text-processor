@@ -136,6 +136,15 @@ Adaptadores Gemini, OpenAI, Drive, MEGA, local, YouTube, Worker
 
 Los adaptadores pueden depender de SDKs externos. El dominio y los casos de uso no.
 
+## Pr?ximo bloque de implementaci?n
+
+**Fase 3.1 ? Contrato de generaci?n de texto y adaptador Gemini**
+
+- [ ] Definir el contrato m?nimo `TextGenerator` sin acoplarlo al SDK de Gemini.
+- [ ] Encapsular la integraci?n actual de Gemini detr?s del adaptador.
+- [ ] Mantener el contrato de salida actual para no romper CLI ni API.
+- [ ] Verificar el adaptador con un smoke test local sin llamar a la API real.
+
 ## Fases
 
 ### Fase 0 — Auditoría previa y seguridad
