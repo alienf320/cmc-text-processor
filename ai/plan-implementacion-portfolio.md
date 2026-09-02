@@ -7,8 +7,8 @@ Preparar `yt-transcriber` para su publicación en GitHub como proyecto de portfo
 ## Progreso actual
 
 - Fase 0: auditor?a de publicaci?n avanzada; queda una revisi?n manual final antes de publicar.
-- Fase 1: README, gu?a de uso, arquitectura y configuraci?n documentados; faltan demo, capturas, ejemplos y badges verificados.
-- Fase 3.1: contrato `TextGenerator` y adaptador Gemini implementados; falta integrar factories y desacoplar almacenamiento/transcripciones.
+- Fase 1: incompleta; faltan capturas/GIF, demo, ejemplos y badges verificados.
+- Fase 3.1: adelantada de forma excepcional; queda en pausa hasta concluir Fase 1 y Fase 2.
 - Fase 2 y el resto de Fase 3 en adelante: pendientes.
 
 ## Resultado esperado
@@ -139,12 +139,14 @@ Los adaptadores pueden depender de SDKs externos. El dominio y los casos de uso 
 
 ## Pr?ximo bloque de implementaci?n
 
-**Fase 3.1 ? Contrato de generaci?n de texto y adaptador Gemini**
+**Fase 1 ? Cierre de README y presentaci?n**
 
-- [x] Definir el contrato m?nimo `TextGenerator` sin acoplarlo al SDK de Gemini.
-- [x] Encapsular la integraci?n actual de Gemini detr?s del adaptador.
-- [x] Mantener el contrato de salida actual para no romper CLI ni API.
-- [x] Verificar el adaptador con un smoke test local sin llamar a la API real.
+- [ ] Preparar capturas o un GIF del flujo principal sin datos sensibles.
+- [ ] Confirmar si existe una demo desplegada y documentarla solo si est? disponible.
+- [ ] Agregar ejemplos peque?os de entrada y salida.
+- [ ] Documentar decisiones t?cnicas y desaf?os reales.
+- [ ] Agregar badges ?nicamente para workflows verificados.
+- [ ] Verificar el criterio de aceptaci?n de la Fase 1.
 
 ## Fases
 
