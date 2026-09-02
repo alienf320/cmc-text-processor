@@ -60,6 +60,30 @@ GOOGLE_GENERATIVE_AI_API_KEY=tu_api_key_de_gemini
 
 La API Key se obtiene desde [Google AI Studio](https://aistudio.google.com/app/apikey). Es obligatoria para procesar y analizar textos.
 
+### Elegir proveedor de IA
+
+El proveedor se selecciona sin modificar el código. Configurá `AI_PROVIDER`,
+`AI_MODEL` y únicamente la credencial correspondiente:
+
+```env
+AI_PROVIDER=gemini
+AI_MODEL=gemini-2.5-flash-lite
+GOOGLE_GENERATIVE_AI_API_KEY=tu_api_key_de_gemini
+
+# Alternativa OpenAI
+# AI_PROVIDER=openai
+# AI_MODEL=gpt-4o-mini
+# OPENAI_API_KEY=tu_api_key_de_openai
+
+# Alternativa Groq
+# AI_PROVIDER=groq
+# AI_MODEL=llama-3.1-8b-instant
+# GROQ_API_KEY=tu_api_key_de_groq
+```
+
+No configures credenciales de otros proveedores si no las necesitás. La
+aplicación informa si el proveedor no es válido o si falta su credencial.
+
 ### Google Drive (opcional)
 
 La aplicación intenta guardar y leer los resultados desde Google Drive. Si Drive no está disponible, conserva el resultado localmente en `resultados/`.

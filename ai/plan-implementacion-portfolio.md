@@ -9,7 +9,7 @@ Preparar `yt-transcriber` para su publicación en GitHub como proyecto de portfo
 - Fase 0: c?digo actual saneado, pero bloqueada hasta revocar las claves expuestas y resolver las 4 coincidencias hist?ricas detectadas.
 - Fase 1: incompleta; faltan capturas/GIF, demo, ejemplos y badges verificados.
 - Fase 2: inventario y normalizaci?n de nombres avanzados; la revisi?n de legacy qued? interrumpida por el hallazgo de seguridad.
-- Fase 3.1: contrato Gemini, configuraci?n validada y factory implementados; OpenAI/Groq todav?a requieren adaptadores.
+- Fase 3.1: contrato, configuraci?n, factory y adaptadores Gemini/OpenAI/Groq implementados; faltan tests permanentes y desacoplamiento de casos de uso.
 - Fase 2 y el resto de Fase 3 en adelante: pendientes.
 
 ## Resultado esperado
@@ -142,12 +142,12 @@ Los adaptadores pueden depender de SDKs externos. El dominio y los casos de uso 
 
 **Adaptadores OpenAI y Groq**
 
-- [ ] Implementar `OpenAITextGenerator` con `OPENAI_API_KEY`.
-- [ ] Implementar `GroqTextGenerator` con `GROQ_API_KEY`.
-- [ ] Mantener el contrato com?n `{ text, modelName }` y prompts equivalentes.
-- [ ] Registrar ambos adaptadores en la factory.
-- [ ] Verificar selecci?n y errores con smoke tests sin llamadas reales.
-- [ ] Documentar el cambio de proveedor mediante `.env`.
+- [x] Implementar `OpenAITextGenerator` con `OPENAI_API_KEY`.
+- [x] Implementar `GroqTextGenerator` con `GROQ_API_KEY`.
+- [x] Mantener el contrato com?n `{ text, modelName }` y prompts equivalentes.
+- [x] Registrar ambos adaptadores en la factory.
+- [x] Verificar selecci?n y errores con smoke tests sin llamadas reales.
+- [x] Documentar el cambio de proveedor mediante `.env`.
 
 ## Fases
 
