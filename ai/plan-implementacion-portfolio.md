@@ -140,13 +140,14 @@ Los adaptadores pueden depender de SDKs externos. El dominio y los casos de uso 
 
 ## Pr?ximo bloque de implementaci?n
 
-**Configuraci?n validada y factory de `TextGenerator`**
+**Adaptadores OpenAI y Groq**
 
-- [x] Definir valores permitidos y defaults no secretos para `AI_PROVIDER` y `AI_MODEL`.
-- [x] Validar al iniciar la credencial requerida por el proveedor seleccionado.
-- [x] Crear una factory centralizada que construya el adaptador configurado.
-- [x] Mantener el facade actual compatible con CLI/API.
-- [x] Verificar proveedores inv?lidos o credenciales faltantes con tests/smoke tests sin secretos.
+- [ ] Implementar `OpenAITextGenerator` con `OPENAI_API_KEY`.
+- [ ] Implementar `GroqTextGenerator` con `GROQ_API_KEY`.
+- [ ] Mantener el contrato com?n `{ text, modelName }` y prompts equivalentes.
+- [ ] Registrar ambos adaptadores en la factory.
+- [ ] Verificar selecci?n y errores con smoke tests sin llamadas reales.
+- [ ] Documentar el cambio de proveedor mediante `.env`.
 
 ## Fases
 
