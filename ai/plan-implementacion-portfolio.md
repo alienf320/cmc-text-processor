@@ -4,6 +4,12 @@
 
 Preparar `yt-transcriber` para su publicación en GitHub como proyecto de portfolio, priorizando seguridad, reproducibilidad, calidad técnica, documentación y una presentación clara para recruiters. La arquitectura también debe permitir reemplazar proveedores —por ejemplo, usar OpenAI para traducción y MEGA para almacenamiento— sin modificar los casos de uso principales.
 
+## Progreso actual
+
+- Fase 0: auditor?a de publicaci?n avanzada; queda una revisi?n manual final antes de publicar.
+- Fase 1: README, gu?a de uso, arquitectura y configuraci?n documentados; faltan demo, capturas, ejemplos y badges verificados.
+- Fase 2 en adelante: pendientes.
+
 ## Resultado esperado
 
 Un recruiter debería poder, en pocos minutos:
@@ -137,13 +143,13 @@ Los adaptadores pueden depender de SDKs externos. El dominio y los casos de uso 
 **Prioridad:** crítica
 
 - [x] Revisar `git status` y todos los archivos tracked.
-- [ ] Confirmar que `.env`, `credentials.json`, `token.json` y claves de Google nunca fueron commiteados.
-- [ ] Revisar el historial de Git por posibles secretos.
+- [x] Confirmar que `.env`, `credentials.json`, `token.json` y claves de Google nunca fueron commiteados.
+- [x] Revisar el historial de Git por posibles secretos.
 - [x] Agregar `.env.example` con nombres de variables, valores ficticios y comentarios.
-- [ ] Documentar las variables necesarias para desarrollo y deploy.
-- [ ] Revisar `renew_token.cjs` y decidir si se versiona, se documenta o se elimina.
-- [ ] Confirmar que las carpetas con entradas y resultados personales no se publiquen.
-- [ ] Verificar la codificación UTF-8 de los archivos con texto en español.
+- [x] Documentar las variables necesarias para desarrollo y deploy.
+- [x] Revisar `renew_token.cjs` y decidir si se versiona, se documenta o se elimina.
+- [x] Confirmar que las carpetas con entradas y resultados personales no se publiquen.
+- [x] Verificar la codificación UTF-8 de los archivos con texto en español.
 
 **Criterio de aceptación:** no existen secretos, tokens, credenciales ni datos personales en el historial o en los archivos que se publicarán.
 
@@ -151,15 +157,15 @@ Los adaptadores pueden depender de SDKs externos. El dominio y los casos de uso 
 
 **Prioridad:** alta
 
-- [ ] Reescribir `README.md` con un resumen orientado al problema y al resultado.
-- [ ] Agregar una sección de funcionalidades principales.
+- [x] Reescribir `README.md` con un resumen orientado al problema y al resultado.
+- [x] Agregar una sección de funcionalidades principales.
 - [ ] Agregar screenshot o GIF del flujo principal.
 - [ ] Agregar enlace a la demo desplegada, si permanece disponible.
-- [ ] Documentar arquitectura con un diagrama simple.
-- [ ] Explicar el flujo YouTube → Cloudflare Worker → API → Gemini → resultado Markdown.
-- [ ] Documentar instalación, configuración, ejecución local y troubleshooting.
-- [ ] Agregar una sección de limitaciones conocidas.
-- [ ] Agregar una sección de decisiones técnicas y desafíos resueltos.
+- [x] Documentar arquitectura con un diagrama simple.
+- [x] Explicar el flujo YouTube → Cloudflare Worker → API → Gemini → resultado Markdown.
+- [x] Documentar instalación, configuración, ejecución local y troubleshooting.
+- [x] Agregar una sección de limitaciones conocidas.
+- [x] Agregar una sección de decisiones técnicas y desafíos resueltos.
 - [ ] Agregar badges de build/deploy cuando los workflows estén verificados.
 - [ ] Incluir ejemplos pequeños de entrada y salida.
 
