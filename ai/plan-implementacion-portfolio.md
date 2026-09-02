@@ -6,9 +6,9 @@ Preparar `yt-transcriber` para su publicación en GitHub como proyecto de portfo
 
 ## Progreso actual
 
-- Fase 0: auditor?a de publicaci?n avanzada; queda una revisi?n manual final antes de publicar.
+- Fase 0: bloqueada; se detectaron claves Groq hardcodeadas en scripts legacy y hay que revocarlas, eliminarlas del c?digo y revisar el historial.
 - Fase 1: incompleta; faltan capturas/GIF, demo, ejemplos y badges verificados.
-- Fase 2: inventario, decisi?n de nombres y estructura p?blica documentados; quedan pendientes revisiones legacy adicionales.
+- Fase 2: inventario y normalizaci?n de nombres avanzados; la revisi?n de legacy qued? interrumpida por el hallazgo de seguridad.
 - Fase 3.1: adelantada de forma excepcional; queda en pausa hasta concluir Fase 1 y Fase 2.
 - Fase 2 y el resto de Fase 3 en adelante: pendientes.
 
@@ -140,12 +140,15 @@ Los adaptadores pueden depender de SDKs externos. El dominio y los casos de uso 
 
 ## Pr?ximo bloque de implementaci?n
 
-**Fase 2 ? Clasificaci?n de legacy y archivos de contenido**
+**Correcci?n de Fase 0 ? Remediaci?n de credenciales expuestas**
 
-- [ ] Revisar el prop?sito y las dependencias de los scripts legacy del root.
-- [ ] Revisar `resultado.md` y `video.txt` para decidir si son ejemplos p?blicos o datos personales.
-- [ ] Confirmar que los scripts experimentales no est?n incluidos en los comandos soportados.
-- [ ] Registrar la decisi?n de publicaci?n por archivo sin borrar contenido autom?ticamente.
+Se pospone la clasificaci?n/publicaci?n de legacy y cualquier nueva implementaci?n hasta resolver este hallazgo de seguridad.
+
+- [ ] Revocar o rotar las claves Groq expuestas.
+- [ ] Reemplazar las claves hardcodeadas en `index.js` y `index - groq.js` por variables de entorno o retirar los scripts legacy.
+- [ ] A?adir patrones `gsk_` al escaneo y revisar todo el historial.
+- [ ] Definir si se necesita reescritura del historial antes de publicar.
+- [ ] Verificar que no queden credenciales en archivos trackeados.
 
 ## Fases
 
